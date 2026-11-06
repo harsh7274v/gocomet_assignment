@@ -193,3 +193,4 @@ PYTHONPATH=backend pytest backend/tests/ -v
 
 ### Conclusion
 The delivered application fulfills all 9 sections of the British Auction RFQ specification. It provides a production-ready solution featuring rigorous server-side concurrency control, real-time WebSocket event streaming, and an intuitive user interface for buyers and carriers.
+

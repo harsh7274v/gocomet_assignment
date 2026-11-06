@@ -20,18 +20,34 @@ function formatToLocalDateTime(d: Date): string {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
+function getInitialTimes() {
+  const now = new Date();
+  const start = new Date(now.getTime() - 2 * 60 * 1000); // 2 mins ago so auction starts immediately
+  const close = new Date(now.getTime() + 25 * 60 * 1000); // 25 mins from now
+  const forced = new Date(now.getTime() + 55 * 60 * 1000); // 55 mins from now (+30m after close)
+  const pickup = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days from now
+  return {
+    start: formatToLocalDateTime(start),
+    close: formatToLocalDateTime(close),
+    forced: formatToLocalDateTime(forced),
+    pickup: formatToLocalDateTime(pickup),
+  };
+}
+
 export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose, onSuccess }) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const initTimes = getInitialTimes();
+
+  const [name, setName] = useState('Delhi to Mumbai Express FTL Freight');
+  const [description, setDescription] = useState('Full truckload commercial transit with British Auction bidding');
   const [serviceType, setServiceType] = useState('Full Truckload (FTL)');
   const [pickupLocation, setPickupLocation] = useState('Delhi Hub, NH48');
   const [destination, setDestination] = useState('Mumbai Logistics Hub');
   
-  // Initialize with local time
-  const [pickupAt, setPickupAt] = useState('');
-  const [bidStartAt, setBidStartAt] = useState('');
-  const [initialCloseAt, setInitialCloseAt] = useState('');
-  const [forcedCloseAt, setForcedCloseAt] = useState('');
+  // Synchronous initialization with local time
+  const [pickupAt, setPickupAt] = useState(initTimes.pickup);
+  const [bidStartAt, setBidStartAt] = useState(initTimes.start);
+  const [initialCloseAt, setInitialCloseAt] = useState(initTimes.close);
+  const [forcedCloseAt, setForcedCloseAt] = useState(initTimes.forced);
 
   // British Auction Config
   const [enableBritishAuction, setEnableBritishAuction] = useState(true);
@@ -45,19 +61,15 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize times whenever modal opens
+  // Refresh available suppliers whenever modal opens
   useEffect(() => {
     if (isOpen) {
-      const now = new Date();
-      const start = new Date(now.getTime() - 2 * 60 * 1000); // 2 mins ago so auction starts immediately
-      const close = new Date(now.getTime() + 20 * 60 * 1000); // 20 mins from now
-      const forced = new Date(now.getTime() + 50 * 60 * 1000); // 50 mins from now (+30m after close)
-      const pickup = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000);
-
-      setBidStartAt(formatToLocalDateTime(start));
-      setInitialCloseAt(formatToLocalDateTime(close));
-      setForcedCloseAt(formatToLocalDateTime(forced));
-      setPickupAt(formatToLocalDateTime(pickup));
+      const times = getInitialTimes();
+      setBidStartAt(times.start);
+      setInitialCloseAt(times.close);
+      setForcedCloseAt(times.forced);
+      setPickupAt(times.pickup);
+      setError(null);
 
       api.listSuppliers().then((sups) => {
         setAvailableSuppliers(sups);
@@ -77,12 +89,11 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
   const isCloseBeforeForced = forcedTimeMs > closeTimeMs;
   const forcedDiffMinutes = closeTimeMs && forcedTimeMs ? Math.round((forcedTimeMs - closeTimeMs) / (60 * 1000)) : 0;
 
-  // Smart Handlers for Close Time change (auto-bump forced close if needed)
+  // Auto-bump helper when close time changes
   const handleCloseTimeChange = (newCloseVal: string) => {
     setInitialCloseAt(newCloseVal);
     const newCloseMs = new Date(newCloseVal).getTime();
     if (!isNaN(newCloseMs)) {
-      // If forced close is <= new close, automatically bump forced close by 30 mins
       if (forcedTimeMs <= newCloseMs) {
         const bumpedForced = new Date(newCloseMs + 30 * 60 * 1000);
         setForcedCloseAt(formatToLocalDateTime(bumpedForced));
@@ -117,47 +128,66 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
     e.preventDefault();
     setError(null);
 
-    // Validation
-    const start = new Date(bidStartAt).getTime();
-    const close = new Date(initialCloseAt).getTime();
-    const forced = new Date(forcedCloseAt).getTime();
+    // Auto-fill fallback name if empty
+    const finalName = name.trim() || `${pickupLocation} to ${destination} Freight`;
+    if (!finalName) {
+      setError('Please provide an RFQ Name.');
+      return;
+    }
 
-    if (isNaN(start) || isNaN(close) || isNaN(forced)) {
-      setError('Please select valid start, close, and forced close times.');
+    // Auto-select all suppliers if none selected
+    let finalSupplierIds = selectedSupplierIds;
+    if (finalSupplierIds.length === 0 && availableSuppliers.length > 0) {
+      finalSupplierIds = availableSuppliers.map((s) => s.id);
+      setSelectedSupplierIds(finalSupplierIds);
+    }
+
+    if (finalSupplierIds.length === 0) {
+      setError('Please select at least one carrier to invite.');
       return;
     }
-    if (start >= close) {
-      setError('Bid Close Time must be strictly later than Bid Start Time.');
+
+    // Validate and auto-fix timings if needed
+    let startMs = new Date(bidStartAt).getTime();
+    let closeMs = new Date(initialCloseAt).getTime();
+    let forcedMs = new Date(forcedCloseAt).getTime();
+
+    if (isNaN(startMs) || isNaN(closeMs) || isNaN(forcedMs)) {
+      setError('Please enter valid dates and times for auction schedule.');
       return;
     }
-    if (close >= forced) {
-      setError('Forced Bid Close Time must be strictly later than Bid Close Time.');
-      return;
+
+    // Auto-fix if close <= start
+    if (closeMs <= startMs) {
+      closeMs = startMs + 20 * 60 * 1000;
+      setInitialCloseAt(formatToLocalDateTime(new Date(closeMs)));
     }
-    if (selectedSupplierIds.length === 0) {
-      setError('Please invite at least one supplier to participate in this RFQ.');
-      return;
+
+    // Auto-fix if forced <= close
+    if (forcedMs <= closeMs) {
+      forcedMs = closeMs + 30 * 60 * 1000;
+      setForcedCloseAt(formatToLocalDateTime(new Date(forcedMs)));
     }
 
     setIsSubmitting(true);
     try {
       await api.createRFQ({
-        name,
+        name: finalName,
         description,
         service_type: serviceType,
-        pickup_location: pickupLocation,
-        destination,
+        pickup_location: pickupLocation || 'Origin Hub',
+        destination: destination || 'Destination Hub',
         pickup_at: new Date(pickupAt).toISOString(),
-        bid_start_at: new Date(bidStartAt).toISOString(),
-        initial_close_at: new Date(initialCloseAt).toISOString(),
-        forced_close_at: new Date(forcedCloseAt).toISOString(),
+        bid_start_at: new Date(startMs).toISOString(),
+        initial_close_at: new Date(closeMs).toISOString(),
+        forced_close_at: new Date(forcedMs).toISOString(),
         enable_british_auction: enableBritishAuction,
         auction_config: enableBritishAuction ? {
           trigger_window_minutes: triggerWindowMinutes,
           extension_duration_minutes: extensionDurationMinutes,
           extension_trigger: extensionTrigger,
         } : undefined,
-        invited_supplier_ids: selectedSupplierIds,
+        invited_supplier_ids: finalSupplierIds,
       });
 
       onSuccess();
@@ -186,7 +216,7 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
         {error && (
           <div className="mx-6 mt-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center space-x-2">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span>{error}</span>
+            <span className="font-semibold">{error}</span>
           </div>
         )}
 
@@ -203,7 +233,7 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Delhi to Mumbai Express Freight"
+                  placeholder="e.g. Delhi to Mumbai Express FTL Freight"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none"
@@ -288,7 +318,7 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
 
               {/* Bid Close Time */}
               <div className={`p-3 rounded-xl border transition ${
-                !isStartBeforeClose ? 'bg-rose-50/60 border-rose-300' : 'bg-slate-50/60 border-slate-200'
+                !isStartBeforeClose ? 'bg-amber-50/60 border-amber-300' : 'bg-slate-50/60 border-slate-200'
               }`}>
                 <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center">
                   <Clock className="w-3.5 h-3.5 mr-1 text-brand-600" />
@@ -300,7 +330,7 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
                   value={initialCloseAt}
                   onChange={(e) => handleCloseTimeChange(e.target.value)}
                   className={`w-full px-2.5 py-2 text-xs rounded-lg border bg-white focus:ring-2 focus:ring-brand-500 outline-none font-mono ${
-                    !isStartBeforeClose ? 'border-rose-400 text-rose-900' : 'border-slate-300 text-slate-800'
+                    !isStartBeforeClose ? 'border-amber-400 text-amber-900' : 'border-slate-300 text-slate-800'
                   }`}
                 />
                 
@@ -330,16 +360,21 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
                   </button>
                 </div>
 
-                {!isStartBeforeClose && (
-                  <span className="text-[10px] text-rose-600 font-semibold mt-1 block">
+                {!isStartBeforeClose ? (
+                  <span className="text-[10px] text-amber-600 font-semibold mt-1 block">
                     ⚠️ Must be later than Start Time!
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-emerald-600 font-semibold mt-1 flex items-center">
+                    <CheckCircle2 className="w-3 h-3 mr-1 flex-shrink-0" />
+                    Valid close time
                   </span>
                 )}
               </div>
 
               {/* Forced Close Time */}
               <div className={`p-3 rounded-xl border transition ${
-                !isCloseBeforeForced ? 'bg-rose-50/70 border-rose-300' : 'bg-slate-50/60 border-slate-200'
+                !isCloseBeforeForced ? 'bg-amber-50/70 border-amber-300' : 'bg-slate-50/60 border-slate-200'
               }`}>
                 <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center">
                   <ShieldAlert className="w-3.5 h-3.5 mr-1 text-slate-600" />
@@ -351,7 +386,7 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
                   value={forcedCloseAt}
                   onChange={(e) => setForcedCloseAt(e.target.value)}
                   className={`w-full px-2.5 py-2 text-xs rounded-lg border bg-white focus:ring-2 focus:ring-brand-500 outline-none font-mono ${
-                    !isCloseBeforeForced ? 'border-rose-400 text-rose-900' : 'border-slate-300 text-slate-800'
+                    !isCloseBeforeForced ? 'border-amber-400 text-amber-900' : 'border-slate-300 text-slate-800'
                   }`}
                 />
 
@@ -388,7 +423,7 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
                     Valid (+{forcedDiffMinutes}m buffer for extensions)
                   </span>
                 ) : (
-                  <span className="text-[10px] text-rose-600 font-bold mt-1 block">
+                  <span className="text-[10px] text-amber-600 font-bold mt-1 block">
                     ⚠️ Must be later than Scheduled Close Time!
                   </span>
                 )}
@@ -561,10 +596,10 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || !isStartBeforeClose || !isCloseBeforeForced}
-              className="px-5 py-2 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isSubmitting}
+              className="px-6 py-2.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl transition shadow-md disabled:opacity-50 cursor-pointer active:scale-98"
             >
-              {isSubmitting ? 'Creating RFQ...' : 'Create & Publish RFQ'}
+              {isSubmitting ? 'Creating & Publishing RFQ...' : 'Create & Publish RFQ'}
             </button>
           </div>
         </form>

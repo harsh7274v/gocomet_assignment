@@ -142,3 +142,4 @@ async def award_contract(
         "message": f"Contract successfully awarded to {carrier_name}",
         "awarded_amount": awarded_amount
     }
+

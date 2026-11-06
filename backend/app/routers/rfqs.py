@@ -36,8 +36,11 @@ def create_rfq(
     ref_id = f"RFQ-{date_str}-{str(uuid.uuid4())[:6].upper()}"
 
     now = datetime.utcnow()
-    # Initial status
-    initial_status = RFQStatus.DRAFT
+    # Publish immediately: if bid_start_at <= now, mark ACTIVE; else SCHEDULED
+    if now >= rfq_in.bid_start_at:
+        initial_status = RFQStatus.ACTIVE
+    else:
+        initial_status = RFQStatus.SCHEDULED
 
     rfq = RFQ(
         reference_id=ref_id,
