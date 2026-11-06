@@ -3,8 +3,8 @@ export type UserRole = 'BUYER' | 'SUPPLIER';
 export interface SupplierProfile {
   id: string;
   carrier_name: string;
-  contact_number?: string;
-  address?: string;
+  contact_number?: string | null;
+  address?: string | null;
 }
 
 export interface User {
@@ -14,7 +14,7 @@ export interface User {
   role: UserRole;
   is_active: boolean;
   created_at: string;
-  supplier_profile?: SupplierProfile;
+  supplier_profile?: SupplierProfile | null;
 }
 
 export type RFQStatus = 'DRAFT' | 'SCHEDULED' | 'ACTIVE' | 'CLOSED' | 'FORCE_CLOSED' | 'CANCELLED';

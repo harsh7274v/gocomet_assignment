@@ -7,6 +7,7 @@ import {
   ActivityLog, 
   AuctionConfig 
 } from '../types';
+import { authResponseSchema, userSchema } from '../schemas';
 
 const API_PORT = (import.meta as any).env?.VITE_API_PORT || '8001';
 const API_BASE_URL = `http://localhost:${API_PORT}/api`;
@@ -38,14 +39,16 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
-    return handleResponse(res);
+    const rawData = await handleResponse(res);
+    return authResponseSchema.parse(rawData);
   },
 
   async getMe(): Promise<User> {
     const res = await fetch(`${API_BASE_URL}/auth/me`, {
       headers: { ...getAuthHeader() },
     });
-    return handleResponse(res);
+    const rawData = await handleResponse(res);
+    return userSchema.parse(rawData);
   },
 
   async listSuppliers(): Promise<{ id: string; email: string; full_name: string; carrier_name: string }[]> {

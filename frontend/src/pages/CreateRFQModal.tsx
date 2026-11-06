@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Gavel, Calendar, MapPin, Truck, Check, AlertCircle, Clock, CheckCircle2, ShieldAlert, IndianRupee } from 'lucide-react';
 import { api } from '../services/api';
 import { ExtensionTrigger } from '../types';
+import { createRFQInputSchema } from '../schemas';
 
 interface CreateRFQModalProps {
   isOpen: boolean;
@@ -268,26 +269,37 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
       setForcedCloseAt(formatToLocalDateTime(new Date(forcedMs)));
     }
 
+    const payload = {
+      name: finalName,
+      service_type: serviceType,
+      pickup_location: pickupLocation || 'Origin Hub',
+      destination: destination || 'Destination Hub',
+      pickup_at: new Date(pickupAt).toISOString(),
+      target_budget: targetBudget > 0 ? targetBudget : undefined,
+      bid_start_at: new Date(startMs).toISOString(),
+      initial_close_at: new Date(closeMs).toISOString(),
+      forced_close_at: new Date(forcedMs).toISOString(),
+      enable_british_auction: enableBritishAuction,
+      auction_config: enableBritishAuction ? {
+        trigger_window_minutes: triggerWindowMinutes,
+        extension_duration_minutes: extensionDurationMinutes,
+        extension_trigger: extensionTrigger,
+      } : undefined,
+      invited_supplier_ids: finalSupplierIds,
+    };
+
+    // Zod Schema Validation
+    const validation = createRFQInputSchema.safeParse(payload);
+    if (!validation.success) {
+      setError(validation.error.issues[0]?.message || 'Please correct the highlighted form errors.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await api.createRFQ({
-        name: finalName,
+        ...payload,
         description,
-        service_type: serviceType,
-        pickup_location: pickupLocation || 'Origin Hub',
-        destination: destination || 'Destination Hub',
-        pickup_at: new Date(pickupAt).toISOString(),
-        target_budget: targetBudget > 0 ? targetBudget : undefined,
-        bid_start_at: new Date(startMs).toISOString(),
-        initial_close_at: new Date(closeMs).toISOString(),
-        forced_close_at: new Date(forcedMs).toISOString(),
-        enable_british_auction: enableBritishAuction,
-        auction_config: enableBritishAuction ? {
-          trigger_window_minutes: triggerWindowMinutes,
-          extension_duration_minutes: extensionDurationMinutes,
-          extension_trigger: extensionTrigger,
-        } : undefined,
-        invited_supplier_ids: finalSupplierIds,
       });
 
       onSuccess();

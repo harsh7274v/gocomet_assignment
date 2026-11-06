@@ -23,6 +23,7 @@ import { ActivityLogList } from '../components/ActivityLogList';
 import { ExtensionBanner } from '../components/ExtensionBanner';
 import { useAuctionSocket } from '../hooks/useAuctionSocket';
 import { useAuth } from '../context/AuthContext';
+import { submitBidInputSchema } from '../schemas';
 
 interface SupplierBiddingPageProps {
   rfqId: string;
@@ -128,24 +129,37 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
     setErrorMessage(null);
     setSuccessMessage(null);
 
+    // Zod Schema Validation
+    const validation = submitBidInputSchema.safeParse({
+      freight_charges: Number(freightCharges),
+      origin_charges: Number(originCharges),
+      destination_charges: Number(destinationCharges),
+      validity_days: Number(validityDays),
+    });
+
+    if (!validation.success) {
+      setErrorMessage(validation.error.issues[0]?.message || 'Please check the bid amounts entered.');
+      return;
+    }
+
     if (calculatedTotal <= 0) {
       setErrorMessage('Total quotation must be greater than zero.');
       return;
     }
 
     if (isExceedingBudget) {
-      setErrorMessage(`Budget Ceiling Violation: Your quotation (₹${calculatedTotal.toLocaleString()}) exceeds the buyer's maximum target budget of ₹${rfq.target_budget?.toLocaleString()}.`);
+      setErrorMessage(`Budget Ceiling Violation: Your quotation (₹${calculatedTotal.toLocaleString()}) exceeds the buyer's maximum target budget of ₹${rfq?.target_budget?.toLocaleString()}.`);
       return;
     }
 
     setIsSubmitting(true);
     try {
       const bidRes = await api.submitBid(rfqId, {
-        freight_charges: Number(freightCharges),
-        origin_charges: Number(originCharges),
-        destination_charges: Number(destinationCharges),
+        freight_charges: validation.data.freight_charges,
+        origin_charges: validation.data.origin_charges,
+        destination_charges: validation.data.destination_charges,
         transit_days: Number(transitDays),
-        validity_days: Number(validityDays),
+        validity_days: validation.data.validity_days,
       });
 
       setSuccessMessage(`Bid of ₹${bidRes.total_amount.toLocaleString()} submitted successfully!`);
