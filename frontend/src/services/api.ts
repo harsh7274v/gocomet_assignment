@@ -9,8 +9,9 @@ import {
 } from '../types';
 import { authResponseSchema, userSchema } from '../schemas';
 
+const envApiUrl = (import.meta as any).env?.VITE_API_URL;
 const API_PORT = (import.meta as any).env?.VITE_API_PORT || '8001';
-const API_BASE_URL = `http://localhost:${API_PORT}/api`;
+const API_BASE_URL = envApiUrl ? `${envApiUrl.replace(/\/$/, '')}/api` : `http://localhost:${API_PORT}/api`;
 
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem('token');

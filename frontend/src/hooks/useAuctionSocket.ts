@@ -28,8 +28,20 @@ export function useAuctionSocket(rfqId?: string) {
     if (!rfqId) return;
 
     const token = localStorage.getItem('token') || '';
-    const apiPort = (import.meta as any).env?.VITE_API_PORT || '8001';
-    const wsUrl = `ws://localhost:${apiPort}/ws/auctions/${rfqId}?token=${encodeURIComponent(token)}`;
+    const envWsUrl = (import.meta as any).env?.VITE_WS_URL;
+    let baseWs: string;
+    if (envWsUrl) {
+      baseWs = envWsUrl.replace(/\/$/, '');
+    } else {
+      const envApiUrl = (import.meta as any).env?.VITE_API_URL;
+      if (envApiUrl) {
+        baseWs = envApiUrl.replace(/^http/, 'ws').replace(/\/$/, '');
+      } else {
+        const apiPort = (import.meta as any).env?.VITE_API_PORT || '8001';
+        baseWs = `ws://localhost:${apiPort}`;
+      }
+    }
+    const wsUrl = `${baseWs}/ws/auctions/${rfqId}?token=${encodeURIComponent(token)}`;
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
