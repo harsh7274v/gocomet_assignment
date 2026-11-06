@@ -1,0 +1,67 @@
+%% Generated from docs/SIMPLE_HLD.md — edit the document, not this file.
+flowchart TD
+    %% Client Layer
+    subgraph CLIENT ["1. CLIENT LAYER (Web Browser)"]
+        direction LR
+        B_UI["Buyer Studio<br/>• Create RFQ<br/>• Target Budget Slider<br/>• Live Leaderboard<br/>• Cancel Auction"]
+        S_UI["Carrier Terminal<br/>• Itemized Quote Entry<br/>• L1-L3 Win Guidance<br/>• Real-Time Countdown<br/>• Activity Logs"]
+        ZOD["Zod Schema Validation<br/>• Login & Timings<br/>• Charges & Budget Cap"]
+        LENIS["Lenis Smooth Scroll & Canvas Motion"]
+    end
+
+    %% Gateway & Transport
+    subgraph GATEWAY ["2. API GATEWAY & TRANSPORT (Port 8001)"]
+        direction LR
+        REST["FastAPI REST Endpoints<br/>/api/auth • /api/rfqs • /api/rfqs/{id}/bids"]
+        WS["Native WebSocket Hub<br/>/ws/auctions/{rfq_id}"]
+    end
+
+    %% Engine Core
+    subgraph ENGINE ["3. BUSINESS ENGINES & EVALUATORS"]
+        direction TB
+        AUTH["Auth & JWT Service<br/>RBAC: BUYER / SUPPLIER"]
+        A_ENG["AuctionEngine<br/>• UTC Milestone Clock<br/>• Server-Side Charge Calculation<br/>• Target Budget Validation"]
+        EXT["ExtensionService<br/>• British Trigger Rules (A, B, C)<br/>• Window Monitor: (Close - X mins)<br/>• Dynamic Add: (Close + Y mins)<br/>• Hard Ceiling Clamp: min(T_new, T_forced)"]
+        RANK["RankingService<br/>• Sort Ascending (Lowest Price = L1)<br/>• Tie-Breaking (Timestamp Priority)"]
+    end
+
+    %% Data Layer
+    subgraph DATA ["4. PERSISTENCE & STORAGE LAYER"]
+        direction LR
+        DB[(Relational DB<br/>SQLite / PostgreSQL)]
+        T_USERS[("users<br/>supplier_profiles")]
+        T_RFQS[("rfqs<br/>auction_configurations")]
+        T_BIDS[("bids<br/>rfq_invitations")]
+        T_LOGS[("activity_logs")]
+    end
+
+    %% Wiring
+    B_UI --> ZOD
+    S_UI --> ZOD
+    ZOD -->|HTTP POST / GET| REST
+    B_UI <-->|Bid & Extension Events| WS
+    S_UI <-->|Live Stream| WS
+
+    REST --> AUTH
+    REST --> A_ENG
+    A_ENG --> RANK
+    A_ENG --> EXT
+
+    A_ENG -->|Broadcast Event| WS
+    EXT -->|Extension Alert| WS
+
+    AUTH --> DB
+    A_ENG --> DB
+    RANK --> DB
+    EXT --> DB
+
+    DB --- T_USERS
+    DB --- T_RFQS
+    DB --- T_BIDS
+    DB --- T_LOGS
+
+    %% Node Styles
+    style CLIENT fill:#f8f9fa,stroke:#212529,stroke-width:2px
+    style GATEWAY fill:#f1f3f5,stroke:#212529,stroke-width:2px
+    style ENGINE fill:#e9ecef,stroke:#212529,stroke-width:2px
+    style DATA fill:#dee2e6,stroke:#212529,stroke-width:2px

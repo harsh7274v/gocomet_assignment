@@ -158,7 +158,6 @@ flowchart TD
 - Live Leaderboard with charges breakdown, transit days, validity, and $L1/L2/L3$ rank badges.
 - **Instant Manual Refresh:** Dedicated refresh button with spinning visual feedback to synchronize full state on demand.
 - Live Audit Log recording every bid, rank shift, and extension with exact reasons (e.g. *"New L1 lowest bidder (DHL Express India) emerged in the last 10 minutes"*).
-- Evaluator Simulation Cockpit: 1-click test triggers to evaluate all 3 British Auction rules instantly.
 
 ### 8.4 Carrier Bidding Terminal
 - Prominent Rank Badge: Green $L1$ badge if winning, Amber $L2+$ badge with distance to leader.

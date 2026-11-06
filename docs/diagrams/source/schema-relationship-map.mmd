@@ -1,0 +1,42 @@
+%% Generated from docs/SCHEMA_DESIGN.md — edit the document, not this file.
+erDiagram
+    users ||--o| supplier_profiles : "has profile"
+    users ||--o{ rfqs : "buyer creates"
+    users ||--o{ rfq_invitations : "supplier invited"
+    users ||--o{ bids : "supplier submits"
+    users ||--o{ activity_logs : "actor"
+    rfqs ||--|| auction_configurations : "configured by"
+    rfqs ||--o{ rfq_invitations : "invites"
+    rfqs ||--o{ bids : "receives"
+    rfqs ||--o{ activity_logs : "audit trail"
+
+    users {
+        string id PK "UUID"
+    }
+    supplier_profiles {
+        string id PK "UUID"
+        string user_id FK "users.id"
+    }
+    rfqs {
+        string id PK "UUID"
+        string buyer_id FK "users.id"
+    }
+    auction_configurations {
+        string id PK "UUID"
+        string rfq_id FK "rfqs.id"
+    }
+    rfq_invitations {
+        string id PK "UUID"
+        string rfq_id FK "rfqs.id"
+        string supplier_id FK "users.id"
+    }
+    bids {
+        string id PK "UUID"
+        string rfq_id FK "rfqs.id"
+        string supplier_id FK "users.id"
+    }
+    activity_logs {
+        string id PK "UUID"
+        string rfq_id FK "rfqs.id"
+        string actor_id FK "users.id"
+    }

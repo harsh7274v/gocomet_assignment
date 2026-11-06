@@ -1,0 +1,62 @@
+%% Generated from docs/SIMPLE_HLD.md — edit the document, not this file.
+flowchart TD
+    START(["Carrier Submits Bid"]) --> V1{"Client Zod Validation<br/>Charges >= 0 & Total > 0?"}
+    
+    V1 -- No --> ERR1["Show Validation Error<br/>Block Submission"]
+    V1 -- Yes --> API["POST /api/rfqs/{id}/bids"]
+
+    API --> AUTH{"Valid JWT Token &<br/>Carrier Invited?"}
+    AUTH -- No --> ERR2["HTTP 403 Forbidden"]
+    
+    AUTH -- Yes --> BUDGET{"Does Total Exceed<br/>Target Budget Ceiling?"}
+    BUDGET -- Yes --> ERR3["HTTP 400 Bad Request<br/>Budget Ceiling Exceeded"]
+
+    BUDGET -- No --> STATUS{"Auction Active?<br/>(bid_start <= Now < current_close)"}
+    STATUS -- No --> ERR4["HTTP 400 Bad Request<br/>Auction Concluded / Closed"]
+
+    STATUS -- Yes --> SAVE_BID["Insert Bid to DB<br/>Total = Freight + Origin + Dest"]
+
+    SAVE_BID --> RECALC["RankingService:<br/>Calculate New Leaderboard<br/>(L1, L2, L3...)"]
+
+    RECALC --> TRIG_WINDOW{"Is Current Time Inside<br/>Trigger Window?<br/>(Now >= current_close - X mins)"}
+
+    TRIG_WINDOW -- No --> NO_EXT["No Extension Triggered"]
+    
+    TRIG_WINDOW -- Yes --> EVAL_RULE{"Evaluate Extension Trigger Rule"}
+
+    EVAL_RULE -->|Option A: any_bid| EXT_TRIGGERED["Condition Satisfied!"]
+    EVAL_RULE -->|Option B: any_rank_change| CHK_B{"Did any supplier<br/>rank shift?"}
+    EVAL_RULE -->|Option C: l1_change| CHK_C{"Did prevailing L1<br/>leader change?"}
+
+    CHK_B -- No --> NO_EXT
+    CHK_B -- Yes --> EXT_TRIGGERED
+
+    CHK_C -- No --> NO_EXT
+    CHK_C -- Yes --> EXT_TRIGGERED
+
+    EXT_TRIGGERED --> COMPUTE_NEW["Compute Proposed Close:<br/>Proposed = current_close + Y mins"]
+
+    COMPUTE_NEW --> CLAMP{"Is Proposed Close > Forced Close Ceiling?<br/>(Proposed > forced_close)"}
+
+    CLAMP -- Yes --> CAP_APPLIED["Clamp to Ceiling:<br/>new_close = forced_close<br/>(Hard Ceiling Enforced)"]
+    CLAMP -- No --> REG_APPLIED["Apply Full Extension:<br/>new_close = Proposed"]
+
+    CAP_APPLIED --> UPDATE_DB["Update rfq.current_close_at in DB<br/>Log AUCTION_EXTENDED event"]
+    REG_APPLIED --> UPDATE_DB
+
+    UPDATE_DB --> WS_EXT["WebSocket Broadcast:<br/>AUCTION_EXTENDED Event<br/>(+Y mins, Reason, New Deadline)"]
+
+    NO_EXT --> WS_BID["WebSocket Broadcast:<br/>NEW_BID & RANKING_CHANGED Event"]
+    WS_EXT --> WS_BID
+
+    WS_BID --> SUCCESS(["201 Created: Return Bid & Live Rank"])
+
+    %% Styles
+    style START fill:#000000,color:#fff
+    style SUCCESS fill:#10b981,color:#fff
+    style ERR1 fill:#ef4444,color:#fff
+    style ERR2 fill:#ef4444,color:#fff
+    style ERR3 fill:#ef4444,color:#fff
+    style ERR4 fill:#ef4444,color:#fff
+    style EXT_TRIGGERED fill:#f59e0b,color:#000
+    style CAP_APPLIED fill:#f97316,color:#fff

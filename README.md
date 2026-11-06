@@ -16,6 +16,7 @@ All formal technical and product specifications are located in the [`docs/`](./d
 5. 🏗️ **[ARCHITECTURE.md](./docs/ARCHITECTURE.md):** System architecture diagram, sequence diagram for concurrent extension locking, complete ERD (7 tables), and API/WebSocket specifications.
 6. 🧠 **[MEMORY.md](./docs/MEMORY.md):** Domain invariants, trigger decision matrices, and architectural decision records (ADRs).
 7. 🚀 **[PHASES_AND_ROADMAP.md](./docs/PHASES_AND_ROADMAP.md):** 9-stage engineering roadmap, end-to-end flow diagrams, and verification checklist.
+8. 🖼️ **[Diagram Atlas](./docs/diagrams/index.html):** Static, offline gallery of every HLD and schema diagram, with zoom, SVG, and PNG downloads. Open the file in a browser.
 
 ---
 
@@ -106,7 +107,8 @@ gocomet_assignment/
 │   ├── REQUIREMENTS.md            # Detailed Functional & Validation Specs
 │   ├── ARCHITECTURE.md            # System Architecture, ERD & Concurrency
 │   ├── MEMORY.md                  # Domain Glossary & Critical Invariants
-│   └── PHASES_AND_ROADMAP.md      # 9 Implementation Stages & Flow
+│   ├── PHASES_AND_ROADMAP.md      # 9 Implementation Stages & Flow
+│   └── diagrams/                  # SVG/PNG diagram renders + offline atlas
 ├── backend/
 │   ├── app/
 │   │   ├── core/                  # Security, DB configuration, JWT

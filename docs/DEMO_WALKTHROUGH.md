@@ -30,12 +30,9 @@ Ensure both servers are running:
 ---
 
 #### Scenario 2: Test Trigger C (L1 Rank Change in Last X Minutes)
-1. On the Auction Details page, locate the **"Evaluator Live Simulation Cockpit"** at the top.
-2. Click **"1. Enter Trigger Window"**:
-   - The close time dynamically shifts to **3 minutes from now**, entering the 10-minute trigger window.
-   - Notice the countdown badge lights up: `TRIGGER WINDOW ACTIVE (10m)`.
-3. Click **"2. DHL Underbids (₹46k)"**:
-   - DHL submits a counter-bid of ₹46,000, undercutting Blue Dart's ₹48,000.
+1. In the header bar, click **"DHL (L2)"** to switch role to DHL Express.
+2. Under the Bidding form, enter counter-bid quotes totaling ₹46,000 (undercutting Blue Dart's ₹48,000).
+3. Submit the bid:
    - **Result:**
      - DHL instantly moves to **$L1$**.
      - An animated gold banner slides in: **`AUCTION AUTOMATICALLY EXTENDED: +5 Minutes Added!`**.
@@ -77,7 +74,7 @@ Ensure both servers are running:
 ---
 
 #### Scenario 5: Test Forced Close Hard Ceiling Clamping
-1. In the Evaluator Cockpit or by submitting consecutive counter-bids near the deadline:
+1. By submitting consecutive counter-bids near the deadline:
 2. When the calculated extension ($T_{close} + Y$) exceeds the Forced Close Time ($T_{forced}$):
 3. The engine automatically clamps the extension:
    $$T_{close}^{new} = T_{forced}$$

@@ -1,0 +1,31 @@
+%% Generated from docs/SIMPLE_HLD.md — edit the document, not this file.
+flowchart TD
+    subgraph SENDER ["Event Trigger Source"]
+        B1["Supplier Bid Submitted"]
+        E1["Extension Evaluated & Clamped"]
+        C1["Auction Cancelled by Buyer"]
+    end
+
+    subgraph ENGINE ["Central Dispatcher"]
+        HUB["WebSocket Connection Manager<br/>(Room: rfq_id)"]
+    end
+
+    subgraph RECEIVERS ["Connected Browser Clients"]
+        direction LR
+        BUYER["Buyer Dashboard<br/>• Live Leaderboard Flash<br/>• Countdown Timer Sync<br/>• Animated Extension Banner"]
+        L1_SUP["Leading Carrier (L1)<br/>• Trophy Badge Confirmed<br/>• Rate Locked"]
+        L2_SUP["Challenger Carriers (L2/L3)<br/>• Outbid Notice<br/>• Win Guidance Banner<br/>• Clock Extended Notice"]
+    end
+
+    B1 --> HUB
+    E1 --> HUB
+    C1 --> HUB
+
+    HUB -->|Push JSON Payload| BUYER
+    HUB -->|Push JSON Payload| L1_SUP
+    HUB -->|Push JSON Payload| L2_SUP
+
+    style HUB fill:#000000,color:#fff,stroke:#333,stroke-width:2px
+    style BUYER fill:#ffffff,stroke:#000,stroke-width:2px
+    style L1_SUP fill:#dcfce7,stroke:#16a34a,stroke-width:2px
+    style L2_SUP fill:#fef3c7,stroke:#d97706,stroke-width:2px

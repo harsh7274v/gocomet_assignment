@@ -1,0 +1,97 @@
+%% Generated from docs/SCHEMA_DESIGN.md — edit the document, not this file.
+erDiagram
+    users ||--o| supplier_profiles : "has profile (if supplier)"
+    users ||--o{ rfqs : "creates (as buyer)"
+    users ||--o{ rfq_invitations : "receives invitation (as supplier)"
+    users ||--o{ bids : "submits quotation"
+    users ||--o{ activity_logs : "triggered by actor"
+
+    rfqs ||--|| auction_configurations : "configured with rules"
+    rfqs ||--o{ rfq_invitations : "invites carrier partners"
+    rfqs ||--o{ bids : "receives quotations"
+    rfqs ||--o{ activity_logs : "tracks audit trail"
+
+    users {
+        string id PK "UUID"
+        string email UK "Corporate Email"
+        string password_hash "Bcrypt Hash"
+        string full_name "User Display Name"
+        string role "BUYER | SUPPLIER"
+        boolean is_active "Account Status"
+        datetime created_at "UTC Timestamp"
+        datetime updated_at "UTC Timestamp"
+    }
+
+    supplier_profiles {
+        string id PK "UUID"
+        string user_id FK "References users.id"
+        string carrier_name "e.g. Blue Dart, DHL"
+        string contact_number "Phone Number"
+        text address "Headquarters / Hub Address"
+        boolean is_verified "KYC Verification"
+        datetime created_at "UTC Timestamp"
+        datetime updated_at "UTC Timestamp"
+    }
+
+    rfqs {
+        string id PK "UUID"
+        string reference_id UK "e.g. RFQ-20261106-B8AFF4"
+        string buyer_id FK "References users.id"
+        string name "Shipment Name / Route Title"
+        text description "Cargo Specifications"
+        string service_type "FTL, LTL, Express, etc."
+        string pickup_location "Origin Facility / Hub"
+        string destination "Consignee Delivery Port"
+        datetime pickup_at "Scheduled Pickup Date"
+        float target_budget "Buyer Budget Ceiling (Hard Cap)"
+        datetime bid_start_at "Auction Opening Time (UTC)"
+        datetime initial_close_at "Original Closing Time (UTC)"
+        datetime current_close_at "Dynamic Closing Time (UTC)"
+        datetime forced_close_at "Non-negotiable Ceiling (UTC)"
+        string status "DRAFT | SCHEDULED | ACTIVE | CLOSED | FORCE_CLOSED | CANCELLED"
+        datetime created_at "UTC Timestamp"
+        datetime updated_at "UTC Timestamp"
+    }
+
+    auction_configurations {
+        string id PK "UUID"
+        string rfq_id FK "References rfqs.id"
+        int trigger_window_minutes "X Minutes Before Close"
+        int extension_duration_minutes "Y Minutes Added on Trigger"
+        string extension_trigger "any_bid | any_rank_change | l1_change"
+        datetime created_at "UTC Timestamp"
+        datetime updated_at "UTC Timestamp"
+    }
+
+    rfq_invitations {
+        string id PK "UUID"
+        string rfq_id FK "References rfqs.id"
+        string supplier_id FK "References users.id"
+        string invitation_status "INVITED | ACCEPTED | DECLINED"
+        datetime invited_at "UTC Timestamp"
+        datetime responded_at "UTC Timestamp"
+    }
+
+    bids {
+        string id PK "UUID"
+        string rfq_id FK "References rfqs.id"
+        string supplier_id FK "References users.id"
+        float freight_charges "Base Freight Amount (₹)"
+        float origin_charges "Pickup & Terminal Handling (₹)"
+        float destination_charges "Delivery & Destination Dues (₹)"
+        float total_amount "Sum: freight + origin + dest"
+        int transit_days "Quoted Transit Time in Days"
+        int validity_days "Quotation Validity in Days"
+        datetime submitted_at "UTC Submission Timestamp"
+        boolean is_valid "Validity Flag"
+    }
+
+    activity_logs {
+        string id PK "UUID"
+        string rfq_id FK "References rfqs.id"
+        string actor_id FK "References users.id (nullable)"
+        string event_type "BID_SUBMITTED | AUCTION_EXTENDED | etc."
+        text description "Human-Readable Audit Note"
+        json details "Structured Metadata Payload"
+        datetime created_at "UTC Timestamp"
+    }

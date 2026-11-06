@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Static diagram atlas for the British Auction in RFQ system: HLD flows and database schema.">
+  <title>Design Atlas — British Auction in RFQ</title>
+  <style>
+    :root {
+      --ink: #141413;
+      --muted: #5a5a58;
+      --soft: #8c8c89;
+      --line: #e5e5e2;
+      --paper: #f7f7f6;
+      --card: #ffffff;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --violet: #7c3aed;
+      --amber: #d97706;
+      --green: #059669;
+      --green-soft: #ecfdf5;
+      --shadow: 0 1px 2px rgba(20, 20, 19, .04), 0 12px 34px rgba(20, 20, 19, .06);
+      --shadow-lg: 0 24px 70px rgba(20, 20, 19, .18);
+      --radius: 20px;
+      --sans: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--sans);
+      background:
+        radial-gradient(1100px 560px at 12% -10%, rgba(37, 99, 235, .08), transparent 62%),
+        radial-gradient(850px 480px at 100% 2%, rgba(217, 119, 6, .06), transparent 58%),
+        var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+    body.no-scroll { overflow: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; color: inherit; }
+    [hidden] { display: none !important; }
+    .wrap { width: min(1440px, 100%); margin: 0 auto; padding: 0 32px; }
+
+    /* ---------- top bar ---------- */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(247, 247, 246, .86);
+      border-bottom: 1px solid rgba(229, 229, 226, .9);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 72px; }
+    .brand { display: inline-flex; align-items: center; gap: 12px; }
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--ink);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: -.5px;
+    }
+    .brand strong { display: block; font-size: 14px; letter-spacing: -.2px; }
+    .brand small { display: block; margin-top: 2px; color: var(--soft); font-size: 11px; font-weight: 600; letter-spacing: .2px; }
+    .topnav { display: flex; align-items: center; gap: 26px; font-size: 12px; font-weight: 650; color: var(--muted); }
+    .topnav a { padding: 6px 0; border-bottom: 1px solid transparent; transition: color .18s ease, border-color .18s ease; }
+    .topnav a:hover { color: var(--ink); border-color: var(--ink); }
+    .status { display: inline-flex; align-items: center; gap: 7px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-family: var(--mono); font-size: 10px; letter-spacing: .4px; text-transform: uppercase; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, .12); }
+
+    /* ---------- hero ---------- */
+    .hero { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(300px, .55fr); gap: 56px; align-items: end; padding: 78px 0 46px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 20px; color: var(--blue); font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 26px; height: 1px; background: currentColor; }
+    h1 { margin: 0; max-width: 900px; font-size: clamp(44px, 6vw, 78px); line-height: .98; letter-spacing: -3.2px; font-weight: 800; }
+    h1 em { font-family: Georgia, "Times New Roman", serif; font-weight: 400; color: var(--blue); }
+    .lede { max-width: 680px; margin: 26px 0 0; color: var(--muted); font-size: 16px; line-height: 1.65; font-weight: 500; }
+    .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 30px; }
+    .button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid transparent;
+      font-size: 13px; font-weight: 700; cursor: pointer; transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .button:hover { transform: translateY(-1px); }
+    .button.primary { background: var(--ink); color: #fff; }
+    .button.primary:hover { background: #2b2b29; }
+    .button.secondary { background: #fff; border-color: var(--line); color: var(--ink); }
+    .button.secondary:hover { border-color: #c9c9c5; }
+    .button svg { width: 15px; height: 15px; }
+
+    .spec-card { position: relative; overflow: hidden; padding: 24px; border-radius: 22px; background: linear-gradient(145deg, #1b1b19 0%, #0d0d0c 100%); color: #fff; box-shadow: var(--shadow-lg); }
+    .spec-card::after { content: ""; position: absolute; width: 220px; height: 220px; right: -90px; top: -100px; border-radius: 50%; background: radial-gradient(circle, rgba(37, 99, 235, .55), transparent 68%); pointer-events: none; }
+    .spec-head { position: relative; display: flex; justify-content: space-between; align-items: center; padding-bottom: 18px; border-bottom: 1px solid rgba(255, 255, 255, .12); font-size: 12px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: rgba(255, 255, 255, .68); }
+    .spec-head .mono { font-family: var(--mono); font-size: 10px; color: rgba(255, 255, 255, .44); }
+    .spec-row { position: relative; display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding: 16px 0 0; }
+    .spec-row span { color: rgba(255, 255, 255, .5); font-size: 12px; font-weight: 600; }
+    .spec-row strong { font-family: var(--mono); font-size: 20px; font-weight: 700; letter-spacing: -.8px; }
+    .spec-note { position: relative; margin-top: 22px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, .12); color: rgba(255, 255, 255, .42); font-family: var(--mono); font-size: 10px; line-height: 1.7; }
+
+    /* ---------- filters ---------- */
+    .filter-wrap { position: sticky; top: 72px; z-index: 40; padding: 18px 0; background: linear-gradient(to bottom, rgba(247, 247, 246, .96), rgba(247, 247, 246, .82) 70%, rgba(247, 247, 246, 0)); }
+    .filters { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .filter-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter {
+      display: inline-flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 14px;
+      border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted);
+      font-size: 12px; font-weight: 700; cursor: pointer; transition: all .18s ease;
+    }
+    .filter:hover { border-color: #cfcfca; color: var(--ink); }
+    .filter.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .filter .count { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: rgba(20, 20, 19, .07); color: inherit; font-family: var(--mono); font-size: 10px; }
+    .filter.active .count { background: rgba(255, 255, 255, .16); }
+    .filter-note { color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .3px; white-space: nowrap; }
+
+    /* ---------- gallery ---------- */
+    .gallery { padding: 6px 0 70px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
+    .card { display: flex; flex-direction: column; min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+    .card-wide { grid-column: 1 / -1; }
+    .card-wide .preview { height: 520px; }
+    .card-wide .card-body p { max-width: 820px; }
+    .card:hover { transform: translateY(-4px); border-color: #d8d8d4; box-shadow: 0 20px 50px rgba(20, 20, 19, .1); }
+    .preview {
+      position: relative; display: block; width: 100%; height: 286px; padding: 22px;
+      border: 0; border-bottom: 1px solid var(--line); cursor: zoom-in; overflow: hidden;
+      background-color: #fbfbfa;
+      background-image:
+        linear-gradient(rgba(20, 20, 19, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20, 20, 19, .035) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .preview::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(20, 20, 19, .06), transparent 40%); opacity: 0; transition: opacity .22s ease; pointer-events: none; }
+    .preview:hover::after { opacity: 1; }
+    .preview img {
+      display: block; max-width: 100%; max-height: 100%; margin: 0 auto;
+      background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(20, 20, 19, .08), 0 14px 30px rgba(20, 20, 19, .07);
+      transition: transform .28s ease;
+    }
+    .preview:hover img { transform: scale(1.018); }
+    .preview img[data-fit="cover"] { width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; object-position: top center; }
+    .preview-hint {
+      position: absolute; left: 50%; bottom: 13px; transform: translate(-50%, 6px);
+      display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 999px;
+      background: rgba(20, 20, 19, .88); color: #fff; font-family: var(--mono); font-size: 9px;
+      letter-spacing: .35px; text-transform: uppercase; opacity: 0; transition: opacity .2s ease, transform .2s ease;
+      pointer-events: none; white-space: nowrap;
+    }
+    .preview-hint svg { width: 11px; height: 11px; }
+    .preview:hover .preview-hint, .preview:focus-visible .preview-hint { opacity: 1; transform: translate(-50%, 0); }
+    .card-body { display: flex; flex: 1; flex-direction: column; gap: 10px; padding: 20px 22px 22px; }
+    .card-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .45px; text-transform: uppercase; }
+    .tag.hld { background: var(--blue-soft); color: #1d4ed8; }
+    .tag.schema { background: var(--green-soft); color: #047857; }
+    .tag.ghost { background: #f3f3f1; color: var(--soft); }
+    .card-number { color: #b2b2ad; font-family: var(--mono); font-size: 10px; letter-spacing: .5px; }
+    .card h2 { margin: 2px 0 0; font-size: 19px; line-height: 1.2; letter-spacing: -.55px; }
+    .card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.62; font-weight: 500; }
+    .card-actions { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 10px; }
+    .file-link { display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .35px; text-transform: uppercase; transition: border-color .18s ease, color .18s ease, background .18s ease; }
+    .file-link:hover { border-color: #cfcfca; background: #fbfbfa; color: var(--ink); }
+    .file-link svg { width: 11px; height: 11px; }
+    .card-actions .inspect { margin-left: auto; padding: 6px 2px; border: 0; background: none; color: var(--blue); font-size: 11px; font-weight: 750; cursor: pointer; }
+    .card-actions .inspect:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ---------- footer ---------- */
+    .site-footer { border-top: 1px solid var(--line); padding: 28px 0 36px; }
+    .footer-inner { display: flex; align-items: flex-start; justify-content: space-between; gap: 28px; color: var(--soft); font-size: 11px; line-height: 1.7; }
+    .footer-inner strong { color: var(--muted); font-weight: 700; }
+    .footer-inner code { padding: 2px 5px; border: 1px solid var(--line); border-radius: 4px; background: #fff; font-family: var(--mono); font-size: 10px; color: var(--muted); }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 18px; font-family: var(--mono); font-size: 10px; letter-spacing: .25px; }
+    .footer-links a:hover { color: var(--ink); }
+
+    /* ---------- lightbox ---------- */
+    .lightbox { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .lightbox-backdrop { position: absolute; inset: 0; background: rgba(10, 10, 10, .72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+    .lightbox-panel { position: relative; display: flex; flex-direction: column; width: min(1500px, 100%); height: min(960px, calc(100vh - 48px)); overflow: hidden; border-radius: 20px; background: var(--paper); box-shadow: 0 40px 120px rgba(0, 0, 0, .4); animation: panel-in .22s ease both; }
+    @keyframes panel-in { from { opacity: 0; transform: translateY(10px) scale(.992); } to { opacity: 1; transform: none; } }
+    .lightbox-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 20px; border-bottom: 1px solid var(--line); background: #fff; }
+    .lightbox-title-wrap { min-width: 0; }
+    .lightbox-kicker { display: block; color: var(--soft); font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; }
+    .lightbox-title { margin: 3px 0 0; font-size: 18px; letter-spacing: -.4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lightbox-actions { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+    .lightbox-actions a, .lightbox-actions button { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 0 11px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--muted); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; cursor: pointer; transition: border-color .18s ease, color .18s ease; }
+    .lightbox-actions a:hover, .lightbox-actions button:hover { border-color: #c9c9c5; color: var(--ink); }
+    .lightbox-actions .close { width: 34px; padding: 0; font-family: var(--sans); font-size: 20px; font-weight: 400; line-height: 1; }
+    .lightbox-stage { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; gap: 18px; padding: 20px 70px; overflow: auto; background-color: #efefed; background-image: radial-gradient(rgba(20, 20, 19, .1) .8px, transparent .8px); background-size: 18px 18px; }
+    .lightbox-image { display: block; max-width: 100%; max-height: 100%; background: #fff; border-radius: 8px; box-shadow: 0 12px 50px rgba(20, 20, 19, .16); cursor: zoom-in; transition: width .2s ease; }
+    .lightbox-image.is-zoomed { max-width: none; max-height: none; width: 170%; height: auto; cursor: zoom-out; }
+    .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 38px; height: 44px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255, 255, 255, .92); color: var(--ink); font-size: 24px; line-height: 1; cursor: pointer; z-index: 2; transition: background .18s ease, border-color .18s ease; }
+    .lightbox-nav:hover { background: #fff; border-color: #c9c9c5; }
+    .lightbox-nav.prev { left: 16px; }
+    .lightbox-nav.next { right: 16px; }
+    .lightbox-footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 10px 20px; border-top: 1px solid var(--line); background: #fff; color: var(--soft); font-family: var(--mono); font-size: 9px; letter-spacing: .25px; }
+
+    /* ---------- responsive ---------- */
+    @media (max-width: 1020px) {
+      .hero { grid-template-columns: 1fr; gap: 36px; align-items: start; padding-top: 58px; }
+      .spec-card { width: min(440px, 100%); }
+      .topnav a { display: none; }
+    }
+    @media (max-width: 720px) {
+      .wrap { padding: 0 20px; }
+      .topbar-inner { height: 64px; }
+      .status { display: none; }
+      .hero { padding: 45px 0 30px; }
+      h1 { letter-spacing: -2.2px; }
+      .lede { font-size: 14px; }
+      .filter-wrap { top: 64px; }
+      .filter-note { display: none; }
+      .grid { grid-template-columns: 1fr; gap: 18px; }
+      .card-wide { grid-column: auto; }
+      .card-wide .preview { height: 260px; }
+      .preview { height: 230px; padding: 16px; }
+      .lightbox { padding: 0; }
+      .lightbox-panel { width: 100%; height: 100%; border-radius: 0; }
+      .lightbox-stage { padding: 16px 54px; }
+      .lightbox-image.is-zoomed { width: 240%; }
+      .footer-inner { flex-direction: column; gap: 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body id="top">
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="#top" aria-label="Design Atlas home">
+        <span class="mark">GC</span>
+        <span>
+          <strong>Design Atlas</strong>
+          <small>British Auction in RFQ</small>
+        </span>
+      </a>
+      <nav class="topnav" aria-label="Document links">
+        <a href="../SIMPLE_HLD.md">SIMPLE_HLD.md</a>
+        <a href="../SCHEMA_DESIGN.md">SCHEMA_DESIGN.md</a>
+        <span class="status"><span class="status-dot"></span> static · offline</span>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">HLD + database schema · visual index</p>
+          <h1 id="page-title">Every box.<br>Every flow. <em>One place.</em></h1>
+          <p class="lede">Rendered from the Mermaid sources in the two design documents. Click a diagram to inspect it, or grab the SVG for documentation and the PNG for slides.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#gallery">
+              Browse diagrams
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 4v12M5 11l5 5 5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <button class="button secondary" id="random-btn" type="button">
+              Surprise me
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.5 4.5 4.5 15.5M6 4.5h9.5V14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+        <aside class="spec-card" aria-label="Atlas manifest">
+          <div class="spec-head"><span>Atlas manifest</span><span class="mono">v1.0</span></div>
+          <div class="spec-row"><span>Diagrams</span><strong>07</strong></div>
+          <div class="spec-row"><span>Documents</span><strong>02</strong></div>
+          <div class="spec-row"><span>Formats</span><strong>SVG + PNG</strong></div>
+          <p class="spec-note">Source of truth<br>docs/SIMPLE_HLD.md<br>docs/SCHEMA_DESIGN.md</p>
+        </aside>
+      </section>
+
+      <div class="filter-wrap">
+        <div class="filters">
+          <div class="filter-group" role="group" aria-label="Filter diagrams">
+            <button class="filter active" type="button" data-filter="all">All diagrams <span class="count">7</span></button>
+            <button class="filter" type="button" data-filter="hld">HLD <span class="count">5</span></button>
+            <button class="filter" type="button" data-filter="schema">Schema <span class="count">2</span></button>
+          </div>
+          <span class="filter-note">Click a preview to open · ← → to navigate</span>
+        </div>
+      </div>
+
+      <section class="gallery" id="gallery" aria-label="Diagram gallery">
+        <div class="grid" id="grid">
+
+          <article class="card" data-group="hld">
+            <button class="preview" type="button"
+              data-title="System Overview"
+              data-src="hld-system-overview.svg"
+              data-png="hld-system-overview.png"
+              data-alt="Layered system overview: client presentation, API gateway, business engines, and persistence">
+              <img src="hld-system-overview.svg" alt="Layered system overview" loading="lazy">
+              <span class="preview-hint"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Click to inspect</span>
+            </button>
+            <div class="card-body">
+              <div class="card-meta">
+                <div class="tags"><span class="tag hld">HLD</span><span class="tag ghost">overview</span></div>
+                <span class="card-number">01 / 07</span>
+              </div>
+              <h2>System Overview</h2>
+              <p>Four-layer box diagram: buyer and carrier clients, API gateway, auction engines, and the seven-table storage model.</p>
+              <div class="card-actions">
+                <a class="file-link" href="hld-system-overview.svg" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>SVG</a>
+                <a class="file-link" href="hld-system-overview.png" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>PNG</a>
+                <button class="inspect" type="button" data-inspect>Inspect →</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" data-group="hld">
+            <button class="preview" type="button"
+              data-title="System Architecture"
+              data-src="hld-system-architecture.svg"
+              data-png="hld-system-architecture.png"
+              data-alt="Component architecture: client layer, FastAPI gateway, business engines, and database storage">
+              <img src="hld-system-architecture.svg" alt="System architecture diagram" loading="lazy" data-fit="cover">
+              <span class="preview-hint"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Click to inspect</span>
+            </button>
+            <div class="card-body">
+              <div class="card-meta">
+                <div class="tags"><span class="tag hld">HLD</span><span class="tag ghost">architecture</span></div>
+                <span class="card-number">02 / 07</span>
+              </div>
+              <h2>System Architecture</h2>
+              <p>Component-level wiring for REST controllers, WebSocket rooms, auth, the auction engine, ranking, extensions, and tables.</p>
+              <div class="card-actions">
+                <a class="file-link" href="hld-system-architecture.svg" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>SVG</a>
+                <a class="file-link" href="hld-system-architecture.png" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>PNG</a>
+                <button class="inspect" type="button" data-inspect>Inspect →</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" data-group="hld">
+            <button class="preview" type="button"
+              data-title="Bid &amp; Extension Decision Flow"
+              data-src="hld-bid-decision-flow.svg"
+              data-png="hld-bid-decision-flow.png"
+              data-alt="End-to-end flow from bid submission through validation, ranking, extension trigger evaluation, and WebSocket broadcast">
+              <img src="hld-bid-decision-flow.svg" alt="Bid and extension decision flowchart" loading="lazy" data-fit="cover">
+              <span class="preview-hint"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Click to inspect</span>
+            </button>
+            <div class="card-body">
+              <div class="card-meta">
+                <div class="tags"><span class="tag hld">HLD</span><span class="tag ghost">flowchart</span></div>
+                <span class="card-number">03 / 07</span>
+              </div>
+              <h2>Bid &amp; Extension Decision Flow</h2>
+              <p>Validation, auth, budget ceiling, live ranking, trigger windows A/B/C, hard-ceiling clamping, and the final real-time broadcast.</p>
+              <div class="card-actions">
+                <a class="file-link" href="hld-bid-decision-flow.svg" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>SVG</a>
+                <a class="file-link" href="hld-bid-decision-flow.png" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>PNG</a>
+                <button class="inspect" type="button" data-inspect>Inspect →</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" data-group="hld">
+            <button class="preview" type="button"
+              data-title="Auction Lifecycle"
+              data-src="hld-auction-lifecycle.svg"
+              data-png="hld-auction-lifecycle.png"
+              data-alt="Auction lifecycle state machine from draft through scheduled and active to closed, force-closed, or cancelled">
+              <img src="hld-auction-lifecycle.svg" alt="Auction lifecycle state machine" loading="lazy">
+              <span class="preview-hint"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Click to inspect</span>
+            </button>
+            <div class="card-body">
+              <div class="card-meta">
+                <div class="tags"><span class="tag hld">HLD</span><span class="tag ghost">state machine</span></div>
+                <span class="card-number">04 / 07</span>
+              </div>
+              <h2>Auction Lifecycle</h2>
+              <p>DRAFT → SCHEDULED → ACTIVE → EXTENDED, with exact transitions to CLOSED, FORCE_CLOSED, and CANCELLED.</p>
+              <div class="card-actions">
+                <a class="file-link" href="hld-auction-lifecycle.svg" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>SVG</a>
+                <a class="file-link" href="hld-auction-lifecycle.png" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>PNG</a>
+                <button class="inspect" type="button" data-inspect>Inspect →</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" data-group="hld">
+            <button class="preview" type="button"
+              data-title="WebSocket Event Distribution"
+              data-src="hld-websocket-events.svg"
+              data-png="hld-websocket-events.png"
+              data-alt="Real-time WebSocket fan-out from bid, extension, and cancellation events to buyer and carrier clients">
+              <img src="hld-websocket-events.svg" alt="WebSocket event distribution diagram" loading="lazy" data-fit="cover">
+              <span class="preview-hint"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Click to inspect</span>
+            </button>
+            <div class="card-body">
+              <div class="card-meta">
+                <div class="tags"><span class="tag hld">HLD</span><span class="tag ghost">realtime</span></div>
+                <span class="card-number">05 / 07</span>
+              </div>
+              <h2>WebSocket Event Distribution</h2>
+              <p>Bid, extension, and cancellation triggers flow through the room-based dispatcher to buyers, L1, and challenger carriers.</p>
+              <div class="card-actions">
+                <a class="file-link" href="hld-websocket-events.svg" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>SVG</a>
+                <a class="file-link" href="hld-websocket-events.png" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>PNG</a>
+                <button class="inspect" type="button" data-inspect>Inspect →</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" data-group="schema">
+            <button class="preview" type="button"
+              data-title="Schema Relationship Map"
+              data-src="schema-relationship-map.svg"
+              data-png="schema-relationship-map.png"
+              data-alt="Compact relationship map of the seven auction tables with primary and foreign keys">
+              <img src="schema-relationship-map.svg" alt="Compact database relationship map" loading="lazy">
+              <span class="preview-hint"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Click to inspect</span>
+            </button>
+            <div class="card-body">
+              <div class="card-meta">
+                <div class="tags"><span class="tag schema">Schema</span><span class="tag ghost">ERD</span></div>
+                <span class="card-number">06 / 07</span>
+              </div>
+              <h2>Schema Relationship Map</h2>
+              <p>The seven tables at a glance: users, supplier profiles, RFQs, auction rules, invitations, bids, and audit logs.</p>
+              <div class="card-actions">
+                <a class="file-link" href="schema-relationship-map.svg" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>SVG</a>
+                <a class="file-link" href="schema-relationship-map.png" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>PNG</a>
+                <button class="inspect" type="button" data-inspect>Inspect →</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card card-wide" data-group="schema">
+            <button class="preview" type="button"
+              data-title="Full Column-Level ERD"
+              data-src="schema-erd.svg"
+              data-png="schema-erd.png"
+              data-alt="Full entity-relationship diagram with every column, key, and relationship in the auction schema">
+              <img src="schema-erd.svg" alt="Full column-level entity relationship diagram" loading="lazy">
+              <span class="preview-hint"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Click to inspect</span>
+            </button>
+            <div class="card-body">
+              <div class="card-meta">
+                <div class="tags"><span class="tag schema">Schema</span><span class="tag ghost">full ERD</span></div>
+                <span class="card-number">07 / 07</span>
+              </div>
+              <h2>Full Column-Level ERD</h2>
+              <p>Every attribute, primary key, unique key, and foreign-key relationship across all seven tables, including enums.</p>
+              <div class="card-actions">
+                <a class="file-link" href="schema-erd.svg" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>SVG</a>
+                <a class="file-link" href="schema-erd.png" download><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9M6 8l4 4 4-4M4 16h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>PNG</a>
+                <button class="inspect" type="button" data-inspect>Inspect →</button>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div>
+        <strong>Design Atlas</strong> · static, offline, no build step.<br>
+        Regenerate with <code>python3 docs/diagrams/render.py</code>
+      </div>
+      <div class="footer-links">
+        <a href="../SIMPLE_HLD.md">HLD document</a>
+        <a href="../SCHEMA_DESIGN.md">Schema document</a>
+        <a href="#top">Back to top ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightbox-title" hidden>
+    <div class="lightbox-backdrop" data-close></div>
+    <div class="lightbox-panel">
+      <header class="lightbox-header">
+        <div class="lightbox-title-wrap">
+          <span class="lightbox-kicker">Diagram inspector</span>
+          <h2 class="lightbox-title" id="lightbox-title">Diagram</h2>
+        </div>
+        <div class="lightbox-actions">
+          <a id="lightbox-svg" href="#" download>SVG</a>
+          <a id="lightbox-png" href="#" download>PNG</a>
+          <button class="close" type="button" data-close aria-label="Close inspector">×</button>
+        </div>
+      </header>
+      <div class="lightbox-stage" id="lightbox-stage">
+        <button class="lightbox-nav prev" type="button" id="prev-btn" aria-label="Previous diagram">‹</button>
+        <img class="lightbox-image" id="lightbox-image" src="" alt="">
+        <button class="lightbox-nav next" type="button" id="next-btn" aria-label="Next diagram">›</button>
+      </div>
+      <footer class="lightbox-footer">
+        <span id="lightbox-count">1 / 7</span>
+        <span>Click image to toggle zoom · Esc to close</span>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const cards = Array.from(document.querySelectorAll('.card'));
+      const filters = Array.from(document.querySelectorAll('.filter'));
+      const lightbox = document.getElementById('lightbox');
+      const stage = document.getElementById('lightbox-stage');
+      const image = document.getElementById('lightbox-image');
+      const title = document.getElementById('lightbox-title');
+      const count = document.getElementById('lightbox-count');
+      const svgLink = document.getElementById('lightbox-svg');
+      const pngLink = document.getElementById('lightbox-png');
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      let visibleCards = cards.slice();
+      let currentIndex = 0;
+      let lastTrigger = null;
+
+      function setFilter(group) {
+        filters.forEach((button) => {
+          const active = button.dataset.filter === group;
+          button.classList.toggle('active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        cards.forEach((card) => {
+          card.hidden = group !== 'all' && card.dataset.group !== group;
+        });
+        visibleCards = cards.filter((card) => !card.hidden);
+      }
+
+      filters.forEach((button) => {
+        button.addEventListener('click', () => setFilter(button.dataset.filter));
+      });
+
+      function previewOf(card) {
+        return card.querySelector('.preview');
+      }
+
+      function renderLightbox() {
+        const card = visibleCards[currentIndex];
+        if (!card) return;
+        const preview = previewOf(card);
+        image.src = preview.dataset.src;
+        image.alt = preview.dataset.alt || preview.dataset.title;
+        image.classList.remove('is-zoomed');
+        stage.scrollTo({ top: 0, left: 0 });
+        title.textContent = preview.dataset.title;
+        svgLink.href = preview.dataset.src;
+        pngLink.href = preview.dataset.png;
+        count.textContent = `${currentIndex + 1} / ${visibleCards.length}`;
+        prevBtn.disabled = visibleCards.length < 2;
+        nextBtn.disabled = visibleCards.length < 2;
+      }
+
+      function openLightbox(card, trigger) {
+        visibleCards = cards.filter((item) => !item.hidden);
+        currentIndex = Math.max(0, visibleCards.indexOf(card));
+        lastTrigger = trigger || null;
+        renderLightbox();
+        lightbox.hidden = false;
+        document.body.classList.add('no-scroll');
+        document.querySelector('#lightbox .close').focus();
+      }
+
+      function closeLightbox() {
+        lightbox.hidden = true;
+        document.body.classList.remove('no-scroll');
+        image.removeAttribute('src');
+        if (lastTrigger) lastTrigger.focus();
+      }
+
+      function step(delta) {
+        if (visibleCards.length < 2) return;
+        currentIndex = (currentIndex + delta + visibleCards.length) % visibleCards.length;
+        renderLightbox();
+      }
+
+      cards.forEach((card) => {
+        const preview = previewOf(card);
+        preview.addEventListener('click', () => openLightbox(card, preview));
+        const inspect = card.querySelector('[data-inspect]');
+        if (inspect) inspect.addEventListener('click', () => openLightbox(card, inspect));
+      });
+
+      document.querySelectorAll('[data-close]').forEach((control) => {
+        control.addEventListener('click', closeLightbox);
+      });
+      prevBtn.addEventListener('click', () => step(-1));
+      nextBtn.addEventListener('click', () => step(1));
+      image.addEventListener('click', () => image.classList.toggle('is-zoomed'));
+
+      document.addEventListener('keydown', (event) => {
+        if (lightbox.hidden) return;
+        if (event.key === 'Escape') closeLightbox();
+        if (event.key === 'ArrowLeft') step(-1);
+        if (event.key === 'ArrowRight') step(1);
+      });
+
+      document.getElementById('random-btn').addEventListener('click', () => {
+        const pool = cards.filter((card) => !card.hidden);
+        if (!pool.length) return;
+        const card = pool[Math.floor(Math.random() * pool.length)];
+        openLightbox(card, document.getElementById('random-btn'));
+      });
+
+      setFilter('all');
+    })();
+  </script>
+</body>
+</html>

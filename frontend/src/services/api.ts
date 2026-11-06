@@ -194,27 +194,6 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Simulator Endpoints
-  async simulateBid(rfqId: string, carrierEmail: string, amount: number): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/rfqs/${rfqId}/simulate-bid`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeader(),
-      },
-      body: JSON.stringify({ carrier_email: carrierEmail, amount }),
-    });
-    return handleResponse(res);
-  },
-
-  async fastForward(rfqId: string, minutesFromNow: number = 3): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/rfqs/${rfqId}/fast-forward?minutes_from_now=${minutesFromNow}`, {
-      method: 'POST',
-      headers: { ...getAuthHeader() },
-    });
-    return handleResponse(res);
-  },
-
   // Export & Awarding
   getExportCSVUrl(rfqId: string): string {
     const token = localStorage.getItem('token') || '';
