@@ -9,7 +9,7 @@ from app.core.config import settings
 from app.core.database import Base, engine, SessionLocal
 from app.seed import seed_database
 from app.models.rfq import RFQ, RFQStatus
-from app.routers import auth, rfqs, bids, auctions
+from app.routers import auth, rfqs, bids, auctions, reports
 from app.services.auction_engine import AuctionEngine
 from app.websockets.connection_manager import ws_manager
 
@@ -77,6 +77,7 @@ app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(rfqs.router, prefix=settings.API_V1_STR)
 app.include_router(bids.router, prefix=settings.API_V1_STR)
 app.include_router(auctions.router, prefix=settings.API_V1_STR)
+app.include_router(reports.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():

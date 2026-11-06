@@ -1,17 +1,21 @@
 import React from 'react';
-import { Trophy, Award, Truck, CheckCircle2 } from 'lucide-react';
+import { Trophy, Award, Truck, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { LeaderboardEntry } from '../types';
 
 interface LeaderboardTableProps {
   entries: LeaderboardEntry[];
   currentUserId?: string;
   isBuyer?: boolean;
+  onAwardContract?: (supplierId: string, carrierName: string, amount: number) => void;
+  awardedSupplierId?: string | null;
 }
 
 export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
   entries,
   currentUserId,
   isBuyer = false,
+  onAwardContract,
+  awardedSupplierId,
 }) => {
   if (entries.length === 0) {
     return (
@@ -83,16 +87,22 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
               <th className="px-5 py-3.5">Transit</th>
               <th className="px-5 py-3.5">Validity</th>
               <th className="px-5 py-3.5 text-right">Submitted</th>
+              {isBuyer && onAwardContract && (
+                <th className="px-5 py-3.5 text-right">Procurement Action</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {entries.map((entry) => {
               const isMe = entry.supplier_id === currentUserId;
+              const isAwarded = awardedSupplierId === entry.supplier_id;
               return (
                 <tr
                   key={entry.supplier_id}
                   className={`transition ${
-                    isMe
+                    isAwarded
+                      ? 'bg-emerald-50/90 font-medium'
+                      : isMe
                       ? 'bg-brand-50/70 font-medium'
                       : entry.rank_number === 1
                       ? 'bg-amber-50/30'
@@ -110,6 +120,12 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                       {isMe && (
                         <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-brand-600 text-white">
                           You
+                        </span>
+                      )}
+                      {isAwarded && (
+                        <span className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-600 text-white">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          AWARDED
                         </span>
                       )}
                     </div>
@@ -134,6 +150,22 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                   <td className="px-5 py-3.5 whitespace-nowrap text-right text-xs text-slate-500 font-mono">
                     {new Date(entry.submitted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                   </td>
+                  {isBuyer && onAwardContract && (
+                    <td className="px-5 py-3.5 whitespace-nowrap text-right">
+                      {isAwarded ? (
+                        <span className="text-xs font-bold text-emerald-700 flex items-center justify-end">
+                          <ShieldCheck className="w-4 h-4 mr-1" /> Contract Awarded
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => onAwardContract(entry.supplier_id, entry.carrier_name, entry.total_amount)}
+                          className="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition"
+                        >
+                          Award Contract
+                        </button>
+                      )}
+                    </td>
+                  )}
                 </tr>
               );
             })}
@@ -143,4 +175,3 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
     </div>
   );
 };
-

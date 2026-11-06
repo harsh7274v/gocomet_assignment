@@ -186,5 +186,19 @@ export const api = {
     });
     return handleResponse(res);
   },
+
+  // Export & Awarding
+  getExportCSVUrl(rfqId: string): string {
+    const token = localStorage.getItem('token') || '';
+    return `${API_BASE_URL}/rfqs/${rfqId}/export-csv?token=${encodeURIComponent(token)}`;
+  },
+
+  async awardContract(rfqId: string, supplierId: string, notes: string = ''): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/rfqs/${rfqId}/award?supplier_id=${supplierId}&notes=${encodeURIComponent(notes)}`, {
+      method: 'POST',
+      headers: { ...getAuthHeader() },
+    });
+    return handleResponse(res);
+  },
 };
 
