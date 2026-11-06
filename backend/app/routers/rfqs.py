@@ -126,13 +126,6 @@ def list_rfqs(
         rfq_id_list = [r[0] for r in invited_rfq_ids]
         query = query.filter(RFQ.id.in_(rfq_id_list))
 
-    if status_filter:
-        try:
-            status_enum = RFQStatus(status_filter.upper())
-            query = query.filter(RFQ.status == status_enum)
-        except ValueError:
-            pass
-
     rfqs = query.order_by(RFQ.created_at.desc()).all()
 
     # Sync statuses and build summary list
@@ -140,6 +133,15 @@ def list_rfqs(
     now = datetime.utcnow()
     for rfq in rfqs:
         AuctionEngine.sync_auction_status(db, rfq, now)
+
+        # Apply status filter after sync
+        if status_filter:
+            norm_filter = status_filter.upper()
+            if norm_filter == "CLOSED":
+                if rfq.status not in (RFQStatus.CLOSED, RFQStatus.FORCE_CLOSED):
+                    continue
+            elif rfq.status.value != norm_filter:
+                continue
 
         # Lowest bid
         lowest_bid = (

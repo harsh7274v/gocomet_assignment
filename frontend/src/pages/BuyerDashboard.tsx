@@ -98,12 +98,24 @@ export const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ onSelectRFQ }) =
   // Compute live aggregates directly from database records
   const totalCount = allRfqs.length;
   const activeCount = allRfqs.filter((r) => r.status === 'ACTIVE').length;
+  const scheduledCount = allRfqs.filter((r) => r.status === 'SCHEDULED').length;
   const closedCount = allRfqs.filter((r) => r.status === 'CLOSED' || r.status === 'FORCE_CLOSED').length;
+  const cancelledCount = allRfqs.filter((r) => r.status === 'CANCELLED').length;
   const totalBids = allRfqs.reduce((acc, curr) => acc + curr.total_bids_count, 0);
 
   // Apply status and search filters for presentation
   const filteredRfqs = allRfqs.filter((rfq) => {
-    const matchesStatus = statusFilter === 'ALL' || rfq.status === statusFilter;
+    let matchesStatus = true;
+    if (statusFilter === 'ACTIVE') {
+      matchesStatus = rfq.status === 'ACTIVE';
+    } else if (statusFilter === 'SCHEDULED') {
+      matchesStatus = rfq.status === 'SCHEDULED';
+    } else if (statusFilter === 'CLOSED') {
+      matchesStatus = rfq.status === 'CLOSED' || rfq.status === 'FORCE_CLOSED';
+    } else if (statusFilter === 'CANCELLED') {
+      matchesStatus = rfq.status === 'CANCELLED';
+    }
+
     const matchesSearch = 
       rfq.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       rfq.reference_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -237,18 +249,31 @@ export const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ onSelectRFQ }) =
       <div className="bg-[#fdfdfd] rounded-2xl border border-[#e5e5e3] shadow-xs overflow-hidden">
         <div className="p-4 border-b border-[#e5e5e3] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           {/* Status Tabs */}
-          <div className="flex items-center space-x-1 bg-[#f0f0ee] p-1 rounded-xl text-xs font-semibold overflow-x-auto">
-            {['ALL', 'ACTIVE', 'SCHEDULED', 'CLOSED', 'CANCELLED'].map((tab) => (
+          <div className="flex items-center space-x-1.5 bg-[#f0f0ee] p-1 rounded-xl text-xs font-semibold overflow-x-auto">
+            {[
+              { id: 'ALL', label: 'All Auctions', count: totalCount },
+              { id: 'ACTIVE', label: 'Active', count: activeCount },
+              { id: 'SCHEDULED', label: 'Scheduled', count: scheduledCount },
+              { id: 'CLOSED', label: 'Closed', count: closedCount },
+              { id: 'CANCELLED', label: 'Cancelled', count: cancelledCount },
+            ].map((tab) => (
               <button
-                key={tab}
-                onClick={() => setStatusFilter(tab)}
-                className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition ${
-                  statusFilter === tab
+                key={tab.id}
+                onClick={() => setStatusFilter(tab.id)}
+                className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition flex items-center space-x-1.5 ${
+                  statusFilter === tab.id
                     ? 'bg-white text-black shadow-xs font-bold'
                     : 'text-neutral-500 hover:text-neutral-900'
                 }`}
               >
-                {tab === 'ALL' ? 'All Auctions' : tab}
+                <span>{tab.label}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                  statusFilter === tab.id
+                    ? 'bg-black text-white font-bold'
+                    : 'bg-neutral-200 text-neutral-700'
+                }`}>
+                  {tab.count}
+                </span>
               </button>
             ))}
           </div>
@@ -281,11 +306,13 @@ export const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ onSelectRFQ }) =
                 <th className="px-5 py-3.5 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[#ececeb]">
               {filteredRfqs.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-slate-500 text-xs">
-                    No RFQs match your filter criteria.
+                  <td colSpan={8} className="px-5 py-12 text-center text-neutral-500 text-xs font-medium">
+                    {statusFilter === 'ALL'
+                      ? 'No RFQs match your filter criteria.'
+                      : `No ${statusFilter.toLowerCase()} auctions found in database.`}
                   </td>
                 </tr>
               ) : (
