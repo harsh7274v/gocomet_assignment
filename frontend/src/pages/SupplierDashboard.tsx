@@ -46,25 +46,25 @@ export const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ onSelectRF
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-brand-900 text-white rounded-2xl p-6 shadow-sm border border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="bg-[#fdfdfd] text-neutral-900 rounded-3xl p-6 shadow-xs border border-[#e5e5e3] flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 text-xs font-semibold border border-brand-500/30 mb-2">
+          <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#f0f0ee] text-neutral-800 text-xs font-semibold border border-[#e2e2e0] mb-2 font-mono">
             <Truck className="w-3.5 h-3.5 mr-1" />
             <span>Carrier Bidding Terminal</span>
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight">
+          <h1 className="text-2xl font-extrabold tracking-tight text-neutral-900">
             Welcome, {carrierName}
           </h1>
-          <p className="text-xs text-slate-300 mt-1 max-w-xl">
+          <p className="text-xs text-neutral-500 mt-1 max-w-xl leading-relaxed">
             You are invited to compete in live reverse British Auctions. Submit quotations and counter-bids before closing deadlines to capture the lowest rate position (L1).
           </p>
         </div>
 
-        <div className="flex items-center space-x-3 bg-slate-800/80 p-3 rounded-xl border border-slate-700/60">
-          <Trophy className="w-6 h-6 text-amber-400" />
+        <div className="flex items-center space-x-3 bg-white p-3.5 rounded-2xl border border-[#e2e2e0] shadow-xs">
+          <Trophy className="w-6 h-6 text-neutral-800" />
           <div>
-            <div className="text-[11px] text-slate-400 uppercase font-semibold">Your Strategy</div>
-            <div className="text-xs font-bold text-white">Capture & Defend L1 Rank</div>
+            <div className="text-[11px] text-neutral-500 uppercase font-semibold">Your Strategy</div>
+            <div className="text-xs font-bold text-neutral-900">Capture & Defend L1 Rank</div>
           </div>
         </div>
       </div>

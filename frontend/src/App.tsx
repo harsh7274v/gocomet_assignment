@@ -15,9 +15,9 @@ const MainLayout: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#111111] flex items-center justify-center">
-        <div className="flex items-center space-x-2 text-white/70 text-sm font-semibold tracking-wide">
-          <RefreshCw className="w-5 h-5 animate-spin text-white" />
+      <div className="min-h-screen bg-[#f7f7f6] flex items-center justify-center">
+        <div className="flex items-center space-x-2 text-neutral-700 text-sm font-semibold tracking-wide">
+          <RefreshCw className="w-5 h-5 animate-spin text-neutral-900" />
           <span>Initializing British Auction Platform...</span>
         </div>
       </div>

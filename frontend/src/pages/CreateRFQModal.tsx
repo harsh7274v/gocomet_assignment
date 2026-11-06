@@ -315,12 +315,12 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
       <div className="relative bg-[#fbfbfa] rounded-3xl max-w-3xl w-full shadow-2xl border border-[#e5e5e3] flex flex-col max-h-[90vh] overflow-hidden my-auto">
         {/* Header */}
-        <div className="flex-shrink-0 px-6 py-4 bg-[#141413] text-white flex items-center justify-between border-b border-white/10">
+        <div className="flex-shrink-0 px-6 py-4 bg-[#fafaf9] text-neutral-900 flex items-center justify-between border-b border-[#e5e5e3]">
           <div className="flex items-center space-x-2">
-            <Gavel className="w-5 h-5 text-neutral-300" />
-            <h2 className="text-base font-bold tracking-tight">Create British Auction RFQ</h2>
+            <Gavel className="w-5 h-5 text-neutral-800" />
+            <h2 className="text-base font-extrabold tracking-tight">Create British Auction RFQ</h2>
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-lg text-neutral-400 hover:text-white transition">
+          <button onClick={onClose} className="p-1.5 hover:bg-[#f0f0ee] rounded-xl text-neutral-500 hover:text-neutral-900 transition">
             <X className="w-5 h-5" />
           </button>
         </div>

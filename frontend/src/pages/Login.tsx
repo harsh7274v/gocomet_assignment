@@ -43,186 +43,209 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#0e1013] overflow-hidden flex flex-col justify-center py-12 sm:px-6 lg:px-8 selection:bg-white selection:text-black">
-      {/* Interactive Logistics Canvas Motion */}
+    <div className="relative min-h-screen bg-[#f7f7f6] overflow-hidden flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 selection:bg-neutral-900 selection:text-white">
+      {/* Interactive Logistics Canvas Motion (Light Theme) */}
       <LogisticsCanvasMotion />
 
-      {/* Subtle overlay gradient to ensure readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0e1013]/60 via-transparent to-[#0e1013]/90 pointer-events-none z-0" />
+      {/* Subtle overlay gradient to blend with dusky white background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#f7f7f6]/40 via-transparent to-[#f7f7f6]/70 pointer-events-none z-0" />
 
-      <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-lg text-center px-4">
-        <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-4 text-xs font-mono text-neutral-300">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>GLOBAL FREIGHT PROCUREMENT ENGINE</span>
-        </div>
-
-        <div className="flex items-center justify-center space-x-3 mb-2">
-          <div className="p-2.5 bg-black text-white rounded-2xl border border-white/20 shadow-2xl">
-            <Gavel className="w-7 h-7" />
-          </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
-            GoComet British Auction
-          </h1>
-        </div>
-
-        <p className="text-xs text-neutral-400 max-w-md mx-auto leading-relaxed">
-          Dynamic reverse procurement platform with automated trigger extensions, live rankings, and forced close ceilings.
-        </p>
-      </div>
-
-      <div className="relative z-10 mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        {/* Quick Demo Launch Card */}
-        <div className="bg-[#181a1f]/85 border border-white/10 backdrop-blur-xl rounded-2xl p-4 mb-4 shadow-2xl">
-          <div className="flex items-center justify-between mb-2.5">
-            <div className="flex items-center space-x-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-neutral-300" />
-              <h3 className="text-[11px] font-bold uppercase tracking-wider text-neutral-200">
-                1-Click Demo Personas
-              </h3>
-            </div>
-            <span className="text-[10px] font-mono text-neutral-400">Pre-authenticated</span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => switchDemoUser('buyer')}
-              className="p-2.5 rounded-xl bg-black/60 hover:bg-black text-left border border-white/10 text-white transition text-xs group active:scale-[0.98]"
-            >
-              <div className="font-bold flex items-center justify-between">
-                <span>Acme Corp</span>
-                <span className="text-[9px] bg-white/15 text-white px-1.5 py-0.5 rounded font-mono">BUYER</span>
-              </div>
-              <div className="text-[10px] text-neutral-400 mt-0.5">Procurement manager</div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => switchDemoUser('bluedart')}
-              className="p-2.5 rounded-xl bg-black/60 hover:bg-black text-left border border-white/10 text-white transition text-xs group active:scale-[0.98]"
-            >
-              <div className="font-bold flex items-center justify-between">
-                <span>Blue Dart</span>
-                <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">L1 LEADER</span>
-              </div>
-              <div className="text-[10px] text-neutral-400 mt-0.5">Holds lowest bid</div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => switchDemoUser('dhl')}
-              className="p-2.5 rounded-xl bg-black/60 hover:bg-black text-left border border-white/10 text-white transition text-xs group active:scale-[0.98]"
-            >
-              <div className="font-bold flex items-center justify-between">
-                <span>DHL Express</span>
-                <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-mono">L2 CARRIER</span>
-              </div>
-              <div className="text-[10px] text-neutral-400 mt-0.5">Challenger quote</div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => switchDemoUser('fedex')}
-              className="p-2.5 rounded-xl bg-black/60 hover:bg-black text-left border border-white/10 text-white transition text-xs group active:scale-[0.98]"
-            >
-              <div className="font-bold flex items-center justify-between">
-                <span>FedEx Freight</span>
-                <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-mono">L3 CARRIER</span>
-              </div>
-              <div className="text-[10px] text-neutral-400 mt-0.5">Invited supplier</div>
-            </button>
-          </div>
-        </div>
-
-        {/* Standard Dusky White Login Form */}
-        <div className="bg-[#fbfbfa] py-7 px-6 shadow-2xl rounded-3xl sm:px-8 border border-[#e5e5e3]">
-          <div className="mb-4 text-center">
-            <h2 className="text-sm font-bold text-neutral-900 uppercase tracking-wider">
-              Operator Sign In
-            </h2>
-            <p className="text-[11px] text-neutral-500 mt-0.5">
-              Enter your logistics enterprise credentials
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
-                <span>{error}</span>
-              </div>
-            )}
-
+      <div className="relative z-10 w-full max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          
+          {/* LEFT SIDE: Brand, Overview & 1-Click Demo Personas */}
+          <div className="lg:col-span-7 space-y-6">
             <div>
-              <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                Corporate Email Address
-              </label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
-                <input
-                  type="email"
-                  required
-                  placeholder="name@company.com"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }));
-                  }}
-                  className={`w-full pl-9 pr-3 py-2 text-sm rounded-xl border bg-white ${
-                    fieldErrors.email ? 'border-rose-400 focus:ring-rose-500 bg-rose-50/20' : 'border-[#d8d8d6] focus:ring-black'
-                  } focus:ring-2 outline-none transition font-sans`}
-                />
+              <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white border border-[#e2e2e0] shadow-xs mb-4 text-xs font-mono text-neutral-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>GLOBAL FREIGHT PROCUREMENT ENGINE</span>
               </div>
-              {fieldErrors.email && (
-                <p className="mt-1 text-[11px] text-rose-600 font-medium flex items-center">
-                  <AlertCircle className="w-3 h-3 mr-1 flex-shrink-0" />
-                  {fieldErrors.email}
-                </p>
-              )}
+
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-3 bg-black text-white rounded-2xl border border-black shadow-lg">
+                  <Gavel className="w-7 h-7" />
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-neutral-900 tracking-tight font-sans">
+                  GoComet British Auction
+                </h1>
+              </div>
+
+              <p className="text-sm text-neutral-600 max-w-xl leading-relaxed">
+                Dynamic reverse procurement platform with automated trigger extensions, live rankings, and forced close ceilings.
+              </p>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }));
-                  }}
-                  className={`w-full pl-9 pr-3 py-2 text-sm rounded-xl border bg-white ${
-                    fieldErrors.password ? 'border-rose-400 focus:ring-rose-500 bg-rose-50/20' : 'border-[#d8d8d6] focus:ring-black'
-                  } focus:ring-2 outline-none transition font-sans`}
-                />
+            {/* 1-Click Demo Personas Section */}
+            <div className="bg-white/85 backdrop-blur-md border border-[#e2e2e0] rounded-3xl p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#f0f0ee]">
+                <div className="flex items-center space-x-2">
+                  <Sparkles className="w-4 h-4 text-neutral-800" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900">
+                    1-CLICK DEMO PERSONAS
+                  </h3>
+                </div>
+                <span className="text-[11px] font-mono font-medium text-neutral-500 bg-[#f4f4f2] px-2 py-0.5 rounded-full">
+                  Pre-authenticated
+                </span>
               </div>
-              {fieldErrors.password && (
-                <p className="mt-1 text-[11px] text-rose-600 font-medium flex items-center">
-                  <AlertCircle className="w-3 h-3 mr-1 flex-shrink-0" />
-                  {fieldErrors.password}
-                </p>
-              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Acme Corp - Buyer */}
+                <button
+                  type="button"
+                  onClick={() => switchDemoUser('buyer')}
+                  className="p-3.5 rounded-2xl bg-[#fafaf9] hover:bg-white text-left border border-[#e2e2e0] hover:border-black hover:shadow-md transition text-xs group active:scale-[0.98]"
+                >
+                  <div className="font-bold text-neutral-900 flex items-center justify-between">
+                    <span className="text-sm">Acme Corp</span>
+                    <span className="text-[10px] bg-neutral-900 text-white px-2 py-0.5 rounded-full font-mono font-semibold">
+                      BUYER
+                    </span>
+                  </div>
+                  <div className="text-xs text-neutral-500 mt-1 font-medium">Procurement manager</div>
+                </button>
+
+                {/* Blue Dart - L1 Leader */}
+                <button
+                  type="button"
+                  onClick={() => switchDemoUser('bluedart')}
+                  className="p-3.5 rounded-2xl bg-[#fafaf9] hover:bg-white text-left border border-[#e2e2e0] hover:border-black hover:shadow-md transition text-xs group active:scale-[0.98]"
+                >
+                  <div className="font-bold text-neutral-900 flex items-center justify-between">
+                    <span className="text-sm">Blue Dart</span>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-full font-mono font-bold">
+                      L1 LEADER
+                    </span>
+                  </div>
+                  <div className="text-xs text-neutral-500 mt-1 font-medium">Holds lowest bid</div>
+                </button>
+
+                {/* DHL Express - L2 Carrier */}
+                <button
+                  type="button"
+                  onClick={() => switchDemoUser('dhl')}
+                  className="p-3.5 rounded-2xl bg-[#fafaf9] hover:bg-white text-left border border-[#e2e2e0] hover:border-black hover:shadow-md transition text-xs group active:scale-[0.98]"
+                >
+                  <div className="font-bold text-neutral-900 flex items-center justify-between">
+                    <span className="text-sm">DHL Express</span>
+                    <span className="text-[10px] bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full font-mono font-bold">
+                      L2 CARRIER
+                    </span>
+                  </div>
+                  <div className="text-xs text-neutral-500 mt-1 font-medium">Challenger quote</div>
+                </button>
+
+                {/* FedEx Freight - L3 Carrier */}
+                <button
+                  type="button"
+                  onClick={() => switchDemoUser('fedex')}
+                  className="p-3.5 rounded-2xl bg-[#fafaf9] hover:bg-white text-left border border-[#e2e2e0] hover:border-black hover:shadow-md transition text-xs group active:scale-[0.98]"
+                >
+                  <div className="font-bold text-neutral-900 flex items-center justify-between">
+                    <span className="text-sm">FedEx Freight</span>
+                    <span className="text-[10px] bg-purple-100 text-purple-800 border border-purple-300 px-2 py-0.5 rounded-full font-mono font-bold">
+                      L3 CARRIER
+                    </span>
+                  </div>
+                  <div className="text-xs text-neutral-500 mt-1 font-medium">Invited supplier</div>
+                </button>
+              </div>
             </div>
-
-            {/* Black Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-black hover:bg-neutral-800 text-white rounded-xl text-xs font-bold transition shadow-md disabled:opacity-50 border border-black active:scale-[0.99] tracking-wide"
-            >
-              <span>{isLoading ? 'Authenticating...' : 'Sign In to Terminal'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
-
-          <div className="mt-4 pt-3 border-t border-[#ebebe9] text-center text-xs text-neutral-500">
-            Demo Password: <code className="font-mono bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-800 font-semibold">password123</code>
           </div>
+
+          {/* RIGHT SIDE: Operator Sign In Form */}
+          <div className="lg:col-span-5">
+            <div className="bg-white py-8 px-6 sm:px-8 shadow-xl rounded-3xl border border-[#e5e5e3]">
+              <div className="mb-6">
+                <h2 className="text-base font-extrabold text-neutral-900 uppercase tracking-wider">
+                  OPERATOR SIGN IN
+                </h2>
+                <p className="text-xs text-neutral-500 mt-1">
+                  Enter your logistics enterprise credentials
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 mb-1.5 uppercase tracking-wide">
+                    Corporate Email Address
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
+                    <input
+                      type="email"
+                      required
+                      placeholder="name@company.com"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }));
+                      }}
+                      className={`w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border bg-white ${
+                        fieldErrors.email ? 'border-rose-400 focus:ring-rose-500 bg-rose-50/20' : 'border-[#d8d8d6] focus:ring-black'
+                      } focus:ring-2 outline-none transition font-sans`}
+                    />
+                  </div>
+                  {fieldErrors.email && (
+                    <p className="mt-1 text-[11px] text-rose-600 font-medium flex items-center">
+                      <AlertCircle className="w-3 h-3 mr-1 flex-shrink-0" />
+                      {fieldErrors.email}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 mb-1.5 uppercase tracking-wide">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
+                    <input
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }));
+                      }}
+                      className={`w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border bg-white ${
+                        fieldErrors.password ? 'border-rose-400 focus:ring-rose-500 bg-rose-50/20' : 'border-[#d8d8d6] focus:ring-black'
+                      } focus:ring-2 outline-none transition font-sans`}
+                    />
+                  </div>
+                  {fieldErrors.password && (
+                    <p className="mt-1 text-[11px] text-rose-600 font-medium flex items-center">
+                      <AlertCircle className="w-3 h-3 mr-1 flex-shrink-0" />
+                      {fieldErrors.password}
+                    </p>
+                  )}
+                </div>
+
+                {/* Black Button */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-black hover:bg-neutral-800 text-white rounded-xl text-xs font-bold transition shadow-md disabled:opacity-50 border border-black active:scale-[0.99] tracking-wider uppercase mt-2"
+                >
+                  <span>{isLoading ? 'Authenticating...' : 'Sign In to Terminal'}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </form>
+
+              <div className="mt-5 pt-4 border-t border-[#ebebe9] text-center text-xs text-neutral-500">
+                Demo Password: <code className="font-mono bg-[#f4f4f2] px-2 py-0.5 rounded text-neutral-800 font-bold border border-[#e5e5e3]">password123</code>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

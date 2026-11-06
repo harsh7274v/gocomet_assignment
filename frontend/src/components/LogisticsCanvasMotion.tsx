@@ -118,7 +118,7 @@ export const LogisticsCanvasMotion: React.FC = () => {
 
       // Subtle background grid
       const gridSize = 48;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.035)';
       ctx.lineWidth = 1;
       for (let x = 0; x < width; x += gridSize) {
         ctx.beginPath();
@@ -154,8 +154,8 @@ export const LogisticsCanvasMotion: React.FC = () => {
 
           const maxDist = 170;
           if (dist < maxDist) {
-            const alpha = (1 - dist / maxDist) * 0.18;
-            ctx.strokeStyle = `rgba(180, 190, 210, ${alpha})`;
+            const alpha = (1 - dist / maxDist) * 0.22;
+            ctx.strokeStyle = `rgba(30, 35, 45, ${alpha})`;
             ctx.lineWidth = 0.8;
             ctx.beginPath();
             ctx.moveTo(node.x, node.y);
@@ -169,8 +169,8 @@ export const LogisticsCanvasMotion: React.FC = () => {
         const mdy = mouse.y - node.y;
         const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
         if (mdist < mouse.radius) {
-          const mAlpha = (1 - mdist / mouse.radius) * 0.45;
-          ctx.strokeStyle = `rgba(255, 255, 255, ${mAlpha})`;
+          const mAlpha = (1 - mdist / mouse.radius) * 0.5;
+          ctx.strokeStyle = `rgba(0, 0, 0, ${mAlpha})`;
           ctx.lineWidth = 1.2;
           ctx.beginPath();
           ctx.moveTo(node.x, node.y);
@@ -185,7 +185,7 @@ export const LogisticsCanvasMotion: React.FC = () => {
         // Draw node
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-        ctx.fillStyle = node.isHub ? 'rgba(255, 255, 255, 0.85)' : 'rgba(160, 170, 190, 0.45)';
+        ctx.fillStyle = node.isHub ? '#111111' : 'rgba(80, 90, 105, 0.45)';
         ctx.fill();
 
         if (node.isHub) {
@@ -193,14 +193,14 @@ export const LogisticsCanvasMotion: React.FC = () => {
           const pulse = (Date.now() / 1200 + i) % 1;
           ctx.beginPath();
           ctx.arc(node.x, node.y, node.radius + pulse * 14, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(255, 255, 255, ${(1 - pulse) * 0.25})`;
+          ctx.strokeStyle = `rgba(0, 0, 0, ${(1 - pulse) * 0.2})`;
           ctx.lineWidth = 1;
           ctx.stroke();
 
           // Hub Tag label
           if (node.label && width > 768) {
             ctx.font = '9px "JetBrains Mono", monospace';
-            ctx.fillStyle = 'rgba(210, 220, 240, 0.4)';
+            ctx.fillStyle = 'rgba(50, 55, 65, 0.7)';
             ctx.fillText(node.label, node.x + 8, node.y + 3);
           }
         }
@@ -225,12 +225,12 @@ export const LogisticsCanvasMotion: React.FC = () => {
           const px = from.x + (to.x - from.x) * pkt.progress;
           const py = from.y + (to.y - from.y) * pkt.progress;
 
-          // Glowing cargo beacon
+          // Cargo beacon
           ctx.beginPath();
-          ctx.arc(px, py, 1.8, 0, Math.PI * 2);
-          ctx.fillStyle = '#ffffff';
-          ctx.shadowColor = '#ffffff';
-          ctx.shadowBlur = 8;
+          ctx.arc(px, py, 2.2, 0, Math.PI * 2);
+          ctx.fillStyle = '#000000';
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+          ctx.shadowBlur = 6;
           ctx.fill();
           ctx.shadowBlur = 0; // Reset blur
         }
@@ -252,8 +252,9 @@ export const LogisticsCanvasMotion: React.FC = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 pointer-events-none z-0 opacity-80"
+      className="absolute inset-0 pointer-events-none z-0 opacity-70"
       style={{ display: 'block' }}
     />
   );
 };
+
