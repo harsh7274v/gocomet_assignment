@@ -156,9 +156,13 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Refresh available suppliers whenever modal opens
+  // Refresh available suppliers and pause background Lenis scroll whenever modal opens
   useEffect(() => {
     if (isOpen) {
+      // Pause global Lenis smooth scroll so modal can scroll natively with mousewheel
+      (window as any).lenis?.stop();
+      document.body.style.overflow = 'hidden';
+
       const times = getInitialTimes();
       setBidStartAt(times.start);
       setInitialCloseAt(times.close);
@@ -170,7 +174,15 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
         setAvailableSuppliers(sups);
         setSelectedSupplierIds(sups.map((s) => s.id));
       }).catch(console.error);
+    } else {
+      (window as any).lenis?.start();
+      document.body.style.overflow = '';
     }
+
+    return () => {
+      (window as any).lenis?.start();
+      document.body.style.overflow = '';
+    };
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -312,15 +324,21 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
-      <div className="relative bg-[#fbfbfa] rounded-3xl max-w-3xl w-full shadow-2xl border border-[#e5e5e3] flex flex-col max-h-[90vh] overflow-hidden my-auto">
+    <div 
+      data-lenis-prevent
+      className="fixed inset-0 z-50 overflow-hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+    >
+      <div 
+        data-lenis-prevent
+        className="relative bg-[#fbfbfa] rounded-3xl max-w-3xl w-full shadow-2xl border border-[#e5e5e3] flex flex-col h-full max-h-[88vh] overflow-hidden my-auto"
+      >
         {/* Header */}
         <div className="flex-shrink-0 px-6 py-4 bg-[#fafaf9] text-neutral-900 flex items-center justify-between border-b border-[#e5e5e3]">
           <div className="flex items-center space-x-2">
             <Gavel className="w-5 h-5 text-neutral-800" />
             <h2 className="text-base font-extrabold tracking-tight">Create British Auction RFQ</h2>
           </div>
-          <button onClick={onClose} className="p-1.5 hover:bg-[#f0f0ee] rounded-xl text-neutral-500 hover:text-neutral-900 transition">
+          <button onClick={onClose} className="p-1.5 hover:bg-[#f0f0ee] rounded-xl text-neutral-500 hover:text-neutral-900 transition cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -333,7 +351,11 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
         )}
 
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <div className="p-6 space-y-6 overflow-y-auto flex-1">
+          <div 
+            data-lenis-prevent
+            className="p-6 pb-12 space-y-6 overflow-y-auto flex-1 overscroll-contain modal-scrollbar"
+            style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}
+          >
             {/* Section 1: Shipment Details */}
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center">
@@ -426,22 +448,22 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
                 </div>
 
                 {/* Target Budget Ceiling with Dragging Bar */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="p-4 rounded-xl bg-[#fafaf9] border border-[#e5e5e3]">
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-bold text-slate-800 flex items-center">
+                    <label className="text-xs font-bold text-neutral-800 flex items-center">
                       <IndianRupee className="w-3.5 h-3.5 mr-1 text-emerald-600" />
                       Target Budget Ceiling (Maximum Allowed Bid) *
                     </label>
                     <div className="flex items-center space-x-1.5">
-                      <span className="text-xs text-slate-500 font-medium">Selected Budget:</span>
-                      <span className="font-mono text-base font-extrabold text-emerald-700">
+                      <span className="text-xs text-neutral-500 font-medium">Selected Budget:</span>
+                      <span className="font-mono text-base font-extrabold text-neutral-900">
                         ₹{targetBudget.toLocaleString('en-IN')}
                       </span>
                     </div>
                   </div>
 
-                  {/* Range Slider Dragging Bar */}
-                  <div className="space-y-1.5">
+                  {/* Range Slider Dragging Bar with cross-browser styling */}
+                  <div className="py-2 space-y-2">
                     <input
                       type="range"
                       min="10000"
@@ -449,9 +471,9 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
                       step="5000"
                       value={targetBudget}
                       onChange={(e) => setTargetBudget(Number(e.target.value))}
-                      className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
+                      className="custom-range-slider cursor-pointer"
                     />
-                    <div className="flex justify-between text-[10px] font-mono text-slate-400">
+                    <div className="flex justify-between text-[10px] font-mono text-neutral-400">
                       <span>₹10,000</span>
                       <span>₹75,000</span>
                       <span>₹1,50,000</span>
@@ -461,9 +483,9 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
                   </div>
 
                   {/* Quick Presets for Budget */}
-                  <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-200/60 flex-wrap gap-2">
-                    <span className="text-[11px] text-slate-500 flex items-center">
-                      <ShieldAlert className="w-3.5 h-3.5 mr-1 text-amber-500" />
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#e8e8e6] flex-wrap gap-2">
+                    <span className="text-[11px] text-neutral-500 flex items-center">
+                      <ShieldAlert className="w-3.5 h-3.5 mr-1 text-neutral-700" />
                       Suppliers cannot bid higher than this budget.
                     </span>
                     <div className="flex items-center space-x-1.5">
@@ -472,10 +494,10 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
                           key={amt}
                           type="button"
                           onClick={() => setTargetBudget(amt)}
-                          className={`text-[10px] px-2 py-0.5 rounded-md font-semibold transition ${
+                          className={`text-[10px] px-2.5 py-1 rounded-md font-semibold transition cursor-pointer ${
                             targetBudget === amt 
-                              ? 'bg-brand-600 text-white shadow-xs' 
-                              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                              ? 'bg-black text-white shadow-xs' 
+                              : 'bg-white border border-[#d8d8d6] text-neutral-700 hover:bg-neutral-100'
                           }`}
                         >
                           ₹{(amt / 1000).toFixed(0)}k

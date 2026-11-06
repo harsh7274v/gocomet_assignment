@@ -13,9 +13,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigateHome }) =
   return (
     <header className="bg-white/95 border-b border-[#e5e5e3] text-neutral-900 sticky top-0 z-40 shadow-xs backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo & Brand */}
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={onNavigateHome}>
+          <div className="flex items-center space-x-3 cursor-pointer flex-shrink-0" onClick={onNavigateHome}>
             <div className="bg-black p-2 rounded-xl text-white shadow-xs">
               <Gavel className="w-5 h-5 text-white" />
             </div>
@@ -30,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigateHome }) =
           </div>
 
           {/* Quick Demo Switcher Bar */}
-          <div className="hidden lg:flex items-center space-x-1.5 bg-[#f4f4f2] px-3 py-1.5 rounded-full border border-[#e2e2e0] text-xs">
+          <div className="hidden xl:flex items-center space-x-1.5 bg-[#f4f4f2] px-3 py-1.5 rounded-full border border-[#e2e2e0] text-xs flex-shrink-0">
             <span className="text-neutral-500 font-medium flex items-center mr-1 text-[11px]">
               <ArrowLeftRight className="w-3.5 h-3.5 mr-1 text-neutral-500" />
               Switch:
@@ -89,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigateHome }) =
 
           {/* User Profile & Actions */}
           {user && (
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 flex-shrink-0">
               <div className="text-right hidden sm:block">
                 <div className="text-sm font-bold text-neutral-900 leading-tight">
                   {user.supplier_profile?.carrier_name || user.full_name}

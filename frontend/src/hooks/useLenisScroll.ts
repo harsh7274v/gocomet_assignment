@@ -14,6 +14,9 @@ export const useLenisScroll = () => {
       touchMultiplier: 1.5,
     });
 
+    // Expose lenis instance to window so modals can pause/resume smooth scroll
+    (window as any).lenis = lenis;
+
     let animationFrameId: number;
 
     const raf = (time: number) => {
@@ -26,6 +29,7 @@ export const useLenisScroll = () => {
     return () => {
       cancelAnimationFrame(animationFrameId);
       lenis.destroy();
+      delete (window as any).lenis;
     };
   }, []);
 };
