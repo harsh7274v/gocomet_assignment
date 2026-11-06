@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  @keyframes highlightPulse {
+    0%, 100% { background-color: transparent; }
+    50% { background-color: rgba(12, 135, 235, 0.15); }
+  }
+
+  .animate-highlight {
+    animation: highlightPulse 2s ease-in-out;
+  }
+}
