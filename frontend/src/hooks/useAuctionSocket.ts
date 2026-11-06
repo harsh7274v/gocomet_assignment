@@ -28,7 +28,8 @@ export function useAuctionSocket(rfqId?: string) {
     if (!rfqId) return;
 
     const token = localStorage.getItem('token') || '';
-    const wsUrl = `ws://localhost:8000/ws/auctions/${rfqId}?token=${encodeURIComponent(token)}`;
+    const apiPort = (import.meta as any).env?.VITE_API_PORT || '8001';
+    const wsUrl = `ws://localhost:${apiPort}/ws/auctions/${rfqId}?token=${encodeURIComponent(token)}`;
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 

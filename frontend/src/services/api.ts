@@ -8,7 +8,8 @@ import {
   AuctionConfig 
 } from '../types';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_PORT = (import.meta as any).env?.VITE_API_PORT || '8001';
+const API_BASE_URL = `http://localhost:${API_PORT}/api`;
 
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem('token');

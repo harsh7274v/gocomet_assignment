@@ -58,7 +58,7 @@ All demo accounts use the standard password: `password123`
 ```bash
 ./start_backend.sh
 ```
-*Backend runs on `http://localhost:8000`. Swagger API docs available at `http://localhost:8000/docs`.*
+*Backend runs on `http://localhost:8001`. Swagger API docs available at `http://localhost:8001/docs`.*
 
 ### 3. Start the Frontend (React + Vite)
 ```bash
