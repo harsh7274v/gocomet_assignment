@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, field_validator
 from app.models.rfq import RFQStatus
 from app.models.auction_config import ExtensionTrigger
 from app.models.invitation import InvitationStatus
@@ -20,6 +20,20 @@ class AuctionConfigResponse(BaseModel):
     class Config:
         from_attributes = True
 
+def normalize_utc_naive(v):
+    if isinstance(v, str):
+        # Handle 'Z' or timezone offsets
+        clean = v.replace("Z", "+00:00")
+        dt = datetime.fromisoformat(clean)
+        if dt.tzinfo is not None:
+            return dt.astimezone(timezone.utc).replace(tzinfo=None)
+        return dt
+    elif isinstance(v, datetime):
+        if v.tzinfo is not None:
+            return v.astimezone(timezone.utc).replace(tzinfo=None)
+        return v
+    return v
+
 class RFQCreateRequest(BaseModel):
     name: str = Field(min_length=3, max_length=255)
     description: Optional[str] = None
@@ -35,6 +49,11 @@ class RFQCreateRequest(BaseModel):
     enable_british_auction: bool = True
     auction_config: Optional[AuctionConfigCreate] = None
     invited_supplier_ids: Optional[List[str]] = []
+
+    @field_validator("pickup_at", "bid_start_at", "initial_close_at", "forced_close_at", mode="before")
+    @classmethod
+    def ensure_utc_naive(cls, v):
+        return normalize_utc_naive(v)
 
     @model_validator(mode="after")
     def validate_timings(self):
