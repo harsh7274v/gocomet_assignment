@@ -114,6 +114,18 @@ export const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ onSelectRF
                 </div>
 
                 <div className="flex flex-wrap items-center gap-6">
+                  {/* Target budget ceiling */}
+                  {rfq.target_budget && (
+                    <div>
+                      <div className="text-[11px] font-semibold text-slate-400 uppercase">
+                        Budget Ceiling
+                      </div>
+                      <div className="text-base font-mono font-bold text-slate-800">
+                        ₹{rfq.target_budget.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Current lowest price */}
                   <div>
                     <div className="text-[11px] font-semibold text-slate-400 uppercase">
