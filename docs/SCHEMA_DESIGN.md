@@ -264,3 +264,4 @@ To ensure sub-10ms response times during high-frequency bidding:
    $$b.\text{total\_amount} = b.\text{freight\_charges} + b.\text{origin\_charges} + b.\text{destination\_charges}$$
 4. **Tie-Break Determinism**:
    When $b_1.\text{total\_amount} = b_2.\text{total\_amount}$, rank priority is awarded to $\min(b_1.\text{submitted\_at}, b_2.\text{submitted\_at})$.
+

@@ -151,3 +151,4 @@ sequenceDiagram
 | **High Concurrency & Safety** | Thread-safe in-memory room tracking and database transactions guarantee consistent extension evaluations under simultaneous carrier bids. |
 | **Idempotency & Resilience** | Real-time WebSocket connection automatically recovers via reconnect loops and fallback polling (`8000ms`). |
 | **Clean Architectural Decoupling** | Modular split across REST routers, domain models, Pydantic/Zod schemas, and socket managers. |
+

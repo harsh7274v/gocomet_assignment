@@ -9,11 +9,13 @@ Built with **FastAPI (Python)**, **React (TypeScript + Vite)**, **Tailwind CSS**
 
 All formal technical and product specifications are located in the [`docs/`](./docs) directory:
 
-1. 📄 **[PRD (Product Requirements Document)](./docs/PRD.md):** User personas, market problem, user journeys, functional specs, business goals, and acceptance criteria.
-2. 📋 **[REQUIREMENTS.md](./docs/REQUIREMENTS.md):** Functional & non-functional requirements, strict validation rules, and leaderboard ranking algorithm.
-3. 🏗️ **[ARCHITECTURE.md](./docs/ARCHITECTURE.md):** System architecture diagram, sequence diagram for concurrent extension locking, complete ERD (7 tables), and API/WebSocket specifications.
-4. 🧠 **[MEMORY.md](./docs/MEMORY.md):** Domain invariants, trigger decision matrices, and architectural decision records (ADRs).
-5. 🚀 **[PHASES_AND_ROADMAP.md](./docs/PHASES_AND_ROADMAP.md):** 9-stage engineering roadmap, end-to-end flow diagrams, and verification checklist.
+1. 🏛️ **[SIMPLE_HLD.md](./docs/SIMPLE_HLD.md):** Simple High-Level Design with system flowchart and sequence diagrams.
+2. 🗄️ **[SCHEMA_DESIGN.md](./docs/SCHEMA_DESIGN.md):** Complete database schema design, Mermaid ERD, table specs, and indexing strategy.
+3. 📄 **[PRD (Product Requirements Document)](./docs/PRD.md):** User personas, market problem, user journeys, functional specs, business goals, and acceptance criteria.
+4. 📋 **[REQUIREMENTS.md](./docs/REQUIREMENTS.md):** Functional & non-functional requirements, strict validation rules, and leaderboard ranking algorithm.
+5. 🏗️ **[ARCHITECTURE.md](./docs/ARCHITECTURE.md):** System architecture diagram, sequence diagram for concurrent extension locking, complete ERD (7 tables), and API/WebSocket specifications.
+6. 🧠 **[MEMORY.md](./docs/MEMORY.md):** Domain invariants, trigger decision matrices, and architectural decision records (ADRs).
+7. 🚀 **[PHASES_AND_ROADMAP.md](./docs/PHASES_AND_ROADMAP.md):** 9-stage engineering roadmap, end-to-end flow diagrams, and verification checklist.
 
 ---
 
