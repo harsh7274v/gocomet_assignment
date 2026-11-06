@@ -330,3 +330,68 @@ def invite_suppliers(
 
     db.commit()
     return {"message": f"Successfully invited {added_count} suppliers to RFQ."}
+
+@router.post("/{rfq_id}/cancel", response_model=RFQDetailResponse)
+async def cancel_rfq(
+    rfq_id: str,
+    current_user: User = Depends(require_buyer),
+    db: Session = Depends(get_db)
+):
+    rfq = db.query(RFQ).filter(RFQ.id == rfq_id, RFQ.buyer_id == current_user.id).first()
+    if not rfq:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="RFQ not found")
+
+    if rfq.status in [RFQStatus.CLOSED, RFQStatus.FORCE_CLOSED, RFQStatus.CANCELLED]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot cancel auction in '{rfq.status.value}' state."
+        )
+
+    rfq.status = RFQStatus.CANCELLED
+    log = ActivityLog(
+        rfq_id=rfq.id,
+        actor_id=current_user.id,
+        event_type=EventType.AUCTION_CLOSED,
+        description=f"Auction cancelled by buyer {current_user.full_name}.",
+        details={"status": RFQStatus.CANCELLED.value, "cancelled_by": current_user.full_name}
+    )
+    db.add(log)
+    db.commit()
+    db.refresh(rfq)
+
+    from app.websockets.connection_manager import ws_manager
+    await ws_manager.broadcast_to_room(rfq.id, {
+        "type": "AUCTION_CLOSED",
+        "rfq_id": rfq.id,
+        "status": "CANCELLED",
+        "description": f"Auction was cancelled by buyer {current_user.full_name}."
+    })
+
+    return get_rfq_details(rfq.id, current_user, db)
+
+@router.delete("/{rfq_id}")
+def delete_rfq(
+    rfq_id: str,
+    current_user: User = Depends(require_buyer),
+    db: Session = Depends(get_db)
+):
+    rfq = db.query(RFQ).filter(RFQ.id == rfq_id, RFQ.buyer_id == current_user.id).first()
+    if not rfq:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="RFQ not found")
+
+    db.delete(rfq)
+    db.commit()
+    return {"message": "RFQ deleted successfully", "id": rfq_id}
+
+@router.delete("")
+def clear_all_rfqs(
+    current_user: User = Depends(require_buyer),
+    db: Session = Depends(get_db)
+):
+    user_rfqs = db.query(RFQ).filter(RFQ.buyer_id == current_user.id).all()
+    count = len(user_rfqs)
+    for r in user_rfqs:
+        db.delete(r)
+    db.commit()
+    return {"message": f"Successfully deleted {count} RFQs"}
+

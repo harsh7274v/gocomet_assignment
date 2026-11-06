@@ -56,7 +56,7 @@ export const AuctionCountdown: React.FC<AuctionCountdownProps> = ({
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const isClosed = status === 'CLOSED' || status === 'FORCE_CLOSED' || timeLeftMs <= 0;
+  const isClosed = status === 'CLOSED' || status === 'FORCE_CLOSED' || status === 'CANCELLED' || timeLeftMs <= 0;
   const isInsideTriggerWindow = !isClosed && timeLeftMs <= triggerWindowMinutes * 60 * 1000;
   const isUrgent = !isClosed && timeLeftMs <= 2 * 60 * 1000;
 
@@ -71,7 +71,7 @@ export const AuctionCountdown: React.FC<AuctionCountdownProps> = ({
         </div>
         {isClosed ? (
           <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-            {status === 'FORCE_CLOSED' ? 'FORCE CLOSED' : 'CLOSED'}
+            {status === 'FORCE_CLOSED' ? 'FORCE CLOSED' : status === 'CANCELLED' ? 'CANCELLED' : 'CLOSED'}
           </span>
         ) : isInsideTriggerWindow ? (
           <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-300 flex items-center space-x-1 animate-pulse">
@@ -117,12 +117,12 @@ export const AuctionCountdown: React.FC<AuctionCountdownProps> = ({
             Forced Close Hard Ceiling
           </div>
           <div className="font-mono text-3xl font-bold text-slate-700 tracking-tight">
-            {formatDuration(forcedTimeLeftMs)}
+            {isClosed ? '00:00:00' : formatDuration(forcedTimeLeftMs)}
           </div>
           <div className="text-xs text-slate-500 mt-2 flex items-center justify-between">
             <span>Hard Deadline:</span>
             <span className="font-medium text-slate-700 font-mono">
-              {formatTimeLocal(forcedCloseAt)}
+              {isClosed ? 'Auction Concluded' : formatTimeLocal(forcedCloseAt)}
             </span>
           </div>
         </div>

@@ -106,6 +106,30 @@ export const api = {
     return handleResponse(res);
   },
 
+  async cancelRFQ(id: string): Promise<RFQDetail> {
+    const res = await fetch(`${API_BASE_URL}/rfqs/${id}/cancel`, {
+      method: 'POST',
+      headers: { ...getAuthHeader() },
+    });
+    return handleResponse(res);
+  },
+
+  async deleteRFQ(id: string): Promise<{ message: string; id: string }> {
+    const res = await fetch(`${API_BASE_URL}/rfqs/${id}`, {
+      method: 'DELETE',
+      headers: { ...getAuthHeader() },
+    });
+    return handleResponse(res);
+  },
+
+  async clearAllRFQs(): Promise<{ message: string }> {
+    const res = await fetch(`${API_BASE_URL}/rfqs`, {
+      method: 'DELETE',
+      headers: { ...getAuthHeader() },
+    });
+    return handleResponse(res);
+  },
+
   async inviteSuppliers(rfqId: string, supplierIds: string[]): Promise<any> {
     const res = await fetch(`${API_BASE_URL}/rfqs/${rfqId}/invite`, {
       method: 'POST',

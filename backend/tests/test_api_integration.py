@@ -84,7 +84,7 @@ def test_list_rfqs_and_bid():
     assert len(ext_logs) >= 1
     assert "New L1 lowest bidder (DHL Express India) emerged" in ext_logs[0]["description"]
 
-def test_downside_bidding_rule_rejection():
+def test_higher_bid_allowed_with_rank_assignment():
     # Login as DHL
     login_res = client.post("/api/auth/login", json={
         "email": "dhl@supplier.com",
@@ -98,14 +98,38 @@ def test_downside_bidding_rule_rejection():
     active_rfq = next(r for r in rfqs if r["status"] == "ACTIVE")
     rfq_id = active_rfq["id"]
 
-    # DHL tries to submit a bid of ₹47,000, which is higher than its previous bid of ₹46,000
-    bad_bid = client.post(f"/api/rfqs/{rfq_id}/bids", headers=headers, json={
-        "freight_charges": 42000.0,
+    # DHL submits a higher quote of ₹55,000 (higher than existing lowest bid)
+    higher_bid = client.post(f"/api/rfqs/{rfq_id}/bids", headers=headers, json={
+        "freight_charges": 50000.0,
         "origin_charges": 2000.0,
         "destination_charges": 3000.0,
-        "transit_days": 2,
+        "transit_days": 3,
         "validity_days": 15
     })
-    assert bad_bid.status_code == 400
-    assert "Downside bidding rule violation" in bad_bid.json()["detail"]
+    assert higher_bid.status_code == 200
+    assert higher_bid.json()["total_amount"] == 55000.0
+
+def test_cancel_rfq():
+    # Login as Buyer
+    login_res = client.post("/api/auth/login", json={
+        "email": "buyer@acme.com",
+        "password": "password123"
+    })
+    token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Get active RFQ
+    rfqs = client.get("/api/rfqs", headers=headers).json()
+    active_rfq = next(r for r in rfqs if r["status"] == "ACTIVE")
+    rfq_id = active_rfq["id"]
+
+    # Cancel the active RFQ
+    cancel_res = client.post(f"/api/rfqs/{rfq_id}/cancel", headers=headers)
+    assert cancel_res.status_code == 200
+    assert cancel_res.json()["status"] == "CANCELLED"
+
+    # Confirm it cannot be cancelled again
+    repeat_res = client.post(f"/api/rfqs/{rfq_id}/cancel", headers=headers)
+    assert repeat_res.status_code == 400
+
 

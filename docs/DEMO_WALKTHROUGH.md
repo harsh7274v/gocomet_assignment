@@ -102,3 +102,28 @@ Ensure both servers are running:
    - A green `AWARDED` badge is pinned to the carrier.
    - An activity log is committed: *"CONTRACT OFFICIALLY AWARDED to [Carrier] at final price of ₹X by Buyer"*.
    - A real-time notification is broadcast over WebSockets to all participating carriers.
+
+---
+
+#### Scenario 8: Cancelling an Active Auction (Buyer Control)
+1. On the Buyer Dashboard, locate any active or scheduled auction.
+2. In the Action column, click the red **"Cancel"** button.
+3. Confirm the cancellation prompt.
+4. The auction immediately halts:
+   - Status updates to **CANCELLED**.
+   - Bidding is blocked across all carrier terminals.
+   - A WebSocket notification is broadcast to all participants.
+   - Filter tab **"Cancelled"** lists all terminated auctions.
+
+---
+
+#### Scenario 9: Testing Flexible Carrier Bidding & Live Guidance
+1. Log in as a carrier (e.g. `dhl@supplier.com`).
+2. Open an active auction. Notice the current lowest quote (e.g. ₹48,000).
+3. In the counter-bid inputs:
+   - Enter a quote higher than ₹48,000 (e.g. ₹52,000). Notice the **Orange Advisory Guide**: *"Low Winning Chances: Your quote is higher than the market leader. Buyers favor lower rates."*
+   - Enter a quote matching ₹48,000. Notice the **Amber Tied Guide**: *"Tied with Leader: Earlier bids hold tie-break priority."*
+   - Enter a quote below ₹48,000 (e.g. ₹45,000). Notice the **Green Leader Guide**: *"Strong Win Chance (L1): This quote beats the current lowest bid!"*
+4. Click **"Submit Counter-Bid"** on any valid price. The quote is successfully recorded in the database and ranked on the leaderboard.
+
+

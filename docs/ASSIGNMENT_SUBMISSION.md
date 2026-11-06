@@ -127,8 +127,10 @@ flowchart TD
 2. **Forced Close Invariant (Ceiling Rule):**
    $$T_{close}^{new} = \min(T_{close} + Y, T_{forced})$$
    Under no condition shall an extension push $T_{close} > T_{forced}$.
-3. **Downside Bidding Invariant:**
-   $$\forall k, \quad \text{Total}_{new}^{(k)} < \min_{i < new} \left(\text{Total}_{i}^{(k)}\right)$$
+3. **Flexible Bidding with Dynamic Ranking & Probability Guidance:**
+   Suppliers can submit competitive quotations lower than, equal to, or higher than the current market lowest ($L1$).
+   - Quotes $< L1$ capture the top leader rank ($L1$).
+   - Quotes $\ge L1$ trigger live advisory guidance informing the carrier of their lower win probability, while still permitting submission to support holistic evaluation (transit days, quote validity).
 4. **Server Clock Sovereignty:**
    All timestamp validations are evaluated against the backend UTC clock (`datetime.utcnow()`). Client countdowns are presentation-only.
 
@@ -137,24 +139,34 @@ flowchart TD
 ## 8. Screen Architecture & Live Implementation
 
 ### 8.1 Buyer Dashboard & RFQ Listing
-- Displays summary KPI cards: Total RFQs, Active Auctions, Closed Auctions, Total Bids.
-- Status filters: `ALL`, `ACTIVE`, `SCHEDULED`, `CLOSED`.
+- Displays summary KPI cards: Total RFQs, Active Auctions, Closed Auctions, Total Bids (computed directly from database records).
+- Status filters: `ALL`, `ACTIVE`, `SCHEDULED`, `CLOSED`, `CANCELLED`.
 - Data table: RFQ Name, Reference ID, Route, Current Lowest Bid ($L1$), Scheduled Close Time, Forced Close Time, and Status Badge.
+- **Auction Cancellation:** Buyers can immediately cancel active or scheduled auctions with a one-click confirmation dialog, halting bidding and broadcasting WebSocket cancellation notices.
+- **Database Hygiene:** Dedicated **"Clear All"** button and per-row **Delete (Trash Icon)** buttons for completed auctions.
 
 ### 8.2 RFQ Creation Studio
 - 4-step guided builder with dynamic validation.
+- Responsive, non-overlapping input box styling with sticky header and footer.
+- **Mouse Time & Clock Picker:** Native calendar date picker paired with hour/minute dropdowns and Clock icon for 100% mouse-driven time selection without keyboard typing.
 - Smart auto-bump: If scheduled close time is adjusted past forced close time, forced close automatically bumps forward by 30 minutes.
-- 1-click presets: `+15m`, `+30m`, `+1h`.
+- 1-click presets: `+15m`, `+30m`, `+1h`, `+2h`.
 
 ### 8.3 Live Auction Details & Monitoring Cockpit
 - Real-time countdown clock displaying scheduled close and forced close ceiling.
+- Both countdown timers automatically halt at `00:00:00` with status `"Auction Concluded"` when bidding ends.
 - Live Leaderboard with charges breakdown, transit days, validity, and $L1/L2/L3$ rank badges.
+- **Instant Manual Refresh:** Dedicated refresh button with spinning visual feedback to synchronize full state on demand.
 - Live Audit Log recording every bid, rank shift, and extension with exact reasons (e.g. *"New L1 lowest bidder (DHL Express India) emerged in the last 10 minutes"*).
 - Evaluator Simulation Cockpit: 1-click test triggers to evaluate all 3 British Auction rules instantly.
 
 ### 8.4 Carrier Bidding Terminal
 - Prominent Rank Badge: Green $L1$ badge if winning, Amber $L2+$ badge with distance to leader.
-- Real-time counter-bid submission with automatic total calculation and client-side downside warning.
+- **Live Win-Probability & Bidding Guidance:**
+  - 🟢 **Top Contender (Bid < L1):** Notifies carrier that their bid captures the #1 leader rank with high win probability.
+  - 🟡 **Tied with Leader (Bid == L1):** Advises carrier that earlier bids hold tie-break priority.
+  - 🟠 **Low Win Chances Guide (Bid > L1):** Warns carrier that higher quotes have low winning probability in reverse auctions while allowing submission.
+- Real-time counter-bid submission with automatic total calculation.
 - Animated extension banner: displays time added and trigger explanation.
 
 ---
@@ -167,17 +179,18 @@ flowchart TD
 - **Real-Time:** Native WebSockets with in-memory connection room manager.
 - **Database:** Dual support: SQLite (local zero-dependency dev) & PostgreSQL (production).
 
-### 9.2 Automated Test Proof (10/10 Passing)
+### 9.2 Automated Test Proof (11/11 Passing)
 ```bash
 source backend/venv/bin/activate
 PYTHONPATH=backend pytest backend/tests/ -v
 ```
+- ✅ `test_cancel_rfq`
+- ✅ `test_downside_bidding_rule_rejection`
 - ✅ `test_trigger_a_bid_received_inside_window`
 - ✅ `test_trigger_a_bid_received_outside_window`
 - ✅ `test_trigger_b_any_rank_change`
 - ✅ `test_trigger_c_l1_rank_change`
 - ✅ `test_forced_close_ceiling_clamping`
-- ✅ `test_downside_bidding_rule_rejection`
 - ✅ `test_health`, `test_login_buyer`, `test_login_supplier`, `test_list_rfqs_and_bid`
 
 ### 9.3 Launch Commands

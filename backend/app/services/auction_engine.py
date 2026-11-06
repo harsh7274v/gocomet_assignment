@@ -131,18 +131,8 @@ class AuctionEngine:
                 detail="Total bid amount must be greater than zero."
             )
 
-        # 3. Downside Bidding Validation: new bid must be lower than supplier's previous lowest valid bid
-        previous_lowest_bid = (
-            db.query(func.min(Bid.total_amount))
-            .filter(Bid.rfq_id == rfq_id, Bid.supplier_id == supplier_user.id)
-            .scalar()
-        )
-
-        if previous_lowest_bid is not None and total_amount >= previous_lowest_bid:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Downside bidding rule violation: Your new bid (₹{total_amount:,.2f}) must be strictly lower than your previous bid (₹{previous_lowest_bid:,.2f})."
-            )
+        # Note: Suppliers can submit competitive quotes lower than, equal to, or higher than current market L1.
+        # Real-time ranking calculation assigns their relative standing (L1, L2, L3...) accordingly.
 
         # Fetch supplier profile
         profile = (

@@ -66,17 +66,25 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
       setActivityLogs(logsData);
 
       // Pre-fill rebid inputs with a suggested lower bid
+      const marketLowest = lbData.lowest_bid_amount || null;
       if (myBidsData.length > 0) {
         const last = myBidsData[0];
-        // Suggest undercutting own bid or L1
-        const lowestMarket = lbData.lowest_bid_amount || last.total_amount;
-        const target = Math.min(last.total_amount - 1000, lowestMarket - 500);
-        const suggestedFreight = Math.max(10000, target - last.origin_charges - last.destination_charges);
+        const target = marketLowest 
+          ? Math.min(last.total_amount - 1000, marketLowest - 500)
+          : last.total_amount - 1000;
+        const suggestedFreight = Math.max(1000, target - last.origin_charges - last.destination_charges);
         setFreightCharges(suggestedFreight);
         setOriginCharges(last.origin_charges);
         setDestinationCharges(last.destination_charges);
         setTransitDays(last.transit_days);
         setValidityDays(last.validity_days);
+      } else if (marketLowest) {
+        // First bid by this carrier, but market already has a lowest quote: suggest undercutting market L1
+        const target = Math.max(1000, marketLowest - 1000);
+        const suggestedFreight = Math.max(1000, target - 2000 - 3000);
+        setFreightCharges(suggestedFreight);
+        setOriginCharges(2000);
+        setDestinationCharges(3000);
       }
     } catch (err) {
       console.error(err);
@@ -101,22 +109,25 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
     }
   }, [latestEvent, rfqId]);
 
-  // Supplier's current personal rank
+  // Supplier's current personal rank and market lowest
   const myEntry = leaderboard?.entries.find((e) => e.supplier_id === user?.id);
   const myRank = myEntry?.rank || 'Unranked';
   const myLatestBidAmount = myBids.length > 0 ? myBids[0].total_amount : null;
+  const currentLowestOfAll = leaderboard?.lowest_bid_amount ?? null;
   const isL1 = myRank === 'L1';
 
-  // Downside bidding validation check
-  const hasDownsideViolation = myLatestBidAmount !== null && calculatedTotal >= myLatestBidAmount;
+  // Comparative status against current market lowest
+  const isLowerThanLowest = currentLowestOfAll === null || calculatedTotal < currentLowestOfAll;
+  const isEqualLowest = currentLowestOfAll !== null && calculatedTotal === currentLowestOfAll;
+  const isHigherThanLowest = currentLowestOfAll !== null && calculatedTotal > currentLowestOfAll;
 
   const handleBidSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    if (hasDownsideViolation) {
-      setErrorMessage(`Downside Rule Violation: Your bid (₹${calculatedTotal.toLocaleString()}) must be lower than your previous bid (₹${myLatestBidAmount?.toLocaleString()}).`);
+    if (calculatedTotal <= 0) {
+      setErrorMessage('Total quotation must be greater than zero.');
       return;
     }
 
@@ -269,9 +280,11 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
             </div>
           </div>
           <div className="text-xs text-slate-500 mt-2 flex items-center justify-between border-t border-slate-100 pt-2">
-            <span>Downside Rule:</span>
-            <span className="text-[11px] font-medium text-brand-600">
-              Next bid must be &lt; {myLatestBidAmount ? `₹${myLatestBidAmount.toLocaleString()}` : 'any'}
+            <span>Market Lowest (L1):</span>
+            <span className="text-[11px] font-semibold text-brand-600">
+              {currentLowestOfAll !== null
+                ? `₹${currentLowestOfAll.toLocaleString()} (Leader)`
+                : 'No bids yet (Open lead)'}
             </span>
           </div>
         </div>
@@ -398,27 +411,53 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
 
           {/* Real-Time Total & Action Bar */}
           <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
+            <div className="flex-1">
               <div className="text-xs font-medium text-slate-500">
                 Calculated Total Quotation (Freight + Origin + Destination):
               </div>
               <div className={`font-mono text-2xl font-extrabold ${
-                hasDownsideViolation ? 'text-rose-600' : 'text-brand-700'
+                isLowerThanLowest 
+                  ? 'text-emerald-700' 
+                  : isEqualLowest 
+                  ? 'text-amber-600' 
+                  : 'text-orange-600'
               }`}>
                 ₹{calculatedTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </div>
-              {hasDownsideViolation && (
-                <div className="text-[11px] text-rose-600 font-medium flex items-center mt-1">
-                  <AlertTriangle className="w-3.5 h-3.5 mr-1" />
-                  Must be lower than previous bid (₹{myLatestBidAmount?.toLocaleString()})
+
+              {/* Dynamic Win-Probability & Bidding Guidance */}
+              {currentLowestOfAll !== null && isLowerThanLowest && (
+                <div className="text-[11px] text-emerald-800 font-semibold flex items-center mt-1.5 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200">
+                  <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-emerald-600 flex-shrink-0" />
+                  <span>Strong Win Chance (L1): This quote beats the current lowest bid by ₹{(currentLowestOfAll - calculatedTotal).toLocaleString()}! You will capture the #1 leader rank.</span>
+                </div>
+              )}
+
+              {currentLowestOfAll !== null && isEqualLowest && (
+                <div className="text-[11px] text-amber-800 font-semibold flex items-center mt-1.5 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200">
+                  <AlertTriangle className="w-3.5 h-3.5 mr-1.5 text-amber-600 flex-shrink-0" />
+                  <span>Tied with Leader: Your quote matches the lowest price (₹{currentLowestOfAll.toLocaleString()}). Tie-breaks favor earlier submissions. Reduce slightly to take the lead.</span>
+                </div>
+              )}
+
+              {currentLowestOfAll !== null && isHigherThanLowest && (
+                <div className="text-[11px] text-orange-800 font-semibold flex items-center mt-1.5 bg-orange-50 px-2.5 py-1.5 rounded-lg border border-orange-200">
+                  <AlertTriangle className="w-3.5 h-3.5 mr-1.5 text-orange-600 flex-shrink-0" />
+                  <span>Low Winning Chances Guide: Your quote is ₹{(calculatedTotal - currentLowestOfAll).toLocaleString()} higher than the lowest market bid (₹{currentLowestOfAll.toLocaleString()}). In reverse British Auctions, buyers favor lower rates. You can still submit this quote, but lowering your price increases your win probability.</span>
                 </div>
               )}
             </div>
 
             <button
               type="submit"
-              disabled={isSubmitting || hasDownsideViolation || isAuctionClosed}
-              className="inline-flex items-center justify-center space-x-2 px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled={isSubmitting || calculatedTotal <= 0 || isAuctionClosed}
+              className={`inline-flex items-center justify-center space-x-2 px-6 py-3 rounded-xl text-xs font-bold transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${
+                isLowerThanLowest 
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
+                  : isHigherThanLowest 
+                  ? 'bg-orange-600 hover:bg-orange-700 text-white' 
+                  : 'bg-brand-600 hover:bg-brand-700 text-white'
+              }`}
             >
               <Send className="w-4 h-4" />
               <span>
@@ -428,7 +467,7 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
                   ? 'Transmitting Bid...'
                   : myBids.length === 0
                   ? 'Submit Initial Quote'
-                  : 'Transmit Lower Counter-Bid'}
+                  : 'Submit Counter-Bid'}
               </span>
             </button>
           </div>

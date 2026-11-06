@@ -36,6 +36,7 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
   const [leaderboard, setLeaderboard] = useState<LeaderboardResponse | null>(null);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Simulation state
   const [simLoading, setSimLoading] = useState(false);
@@ -58,6 +59,18 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
       console.error(err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await fetchFullState();
+      await new Promise((r) => setTimeout(r, 500));
+    } catch (err) {
+      console.error('Refresh failed:', err);
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -175,11 +188,13 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
           </div>
 
           <button
-            onClick={fetchFullState}
-            title="Refresh"
-            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition"
+            onClick={handleManualRefresh}
+            disabled={isRefreshing}
+            title="Refresh Live Data"
+            className="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand-600' : 'text-slate-600'}`} />
+            <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
         </div>
       </div>
