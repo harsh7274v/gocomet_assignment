@@ -7,6 +7,7 @@ import { AuctionDetailsPage } from './pages/AuctionDetailsPage';
 import { SupplierDashboard } from './pages/SupplierDashboard';
 import { SupplierBiddingPage } from './pages/SupplierBiddingPage';
 import { RefreshCw } from 'lucide-react';
+import { useLenisScroll } from './hooks/useLenisScroll';
 
 const MainLayout: React.FC = () => {
   const { user, isLoading } = useAuth();
@@ -14,9 +15,9 @@ const MainLayout: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="flex items-center space-x-2 text-brand-400 text-sm font-semibold">
-          <RefreshCw className="w-5 h-5 animate-spin" />
+      <div className="min-h-screen bg-[#111111] flex items-center justify-center">
+        <div className="flex items-center space-x-2 text-white/70 text-sm font-semibold tracking-wide">
+          <RefreshCw className="w-5 h-5 animate-spin text-white" />
           <span>Initializing British Auction Platform...</span>
         </div>
       </div>
@@ -28,7 +29,7 @@ const MainLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#f7f7f6] flex flex-col font-sans text-neutral-900">
       <Navbar onNavigateHome={() => setSelectedRfqId(null)} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -54,14 +55,16 @@ const MainLayout: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
-        British Auction in RFQ System • Powered by FastAPI & React • Reverse Procurement Engine
+      <footer className="bg-white border-t border-[#e8e8e7] py-4 text-center text-xs text-neutral-500 font-medium">
+        GoComet British Auction Platform • Reverse Freight Procurement Engine
       </footer>
     </div>
   );
 };
 
 export const App: React.FC = () => {
+  useLenisScroll();
+
   return (
     <AuthProvider>
       <MainLayout />

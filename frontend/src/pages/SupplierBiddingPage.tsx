@@ -503,14 +503,14 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
             <button
               type="submit"
               disabled={isSubmitting || calculatedTotal <= 0 || isAuctionClosed || isExceedingBudget}
-              className={`inline-flex items-center justify-center space-x-2 px-6 py-3 rounded-xl text-xs font-bold transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${
+              className={`inline-flex items-center justify-center space-x-2 px-6 py-3 rounded-xl text-xs font-bold transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed border active:scale-[0.99] ${
                 isExceedingBudget
-                  ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                  ? 'bg-rose-600 hover:bg-rose-700 text-white border-rose-700'
                   : isLowerThanLowest 
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-700' 
                   : isHigherThanLowest 
-                  ? 'bg-orange-600 hover:bg-orange-700 text-white' 
-                  : 'bg-brand-600 hover:bg-brand-700 text-white'
+                  ? 'bg-neutral-900 hover:bg-neutral-800 text-white border-neutral-900' 
+                  : 'bg-black hover:bg-neutral-800 text-white border-black'
               }`}
             >
               <Send className="w-4 h-4" />

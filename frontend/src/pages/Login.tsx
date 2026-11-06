@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Gavel, Truck, Lock, Mail, ArrowRight, ShieldCheck, Sparkles, AlertCircle } from 'lucide-react';
+import { Gavel, Truck, Lock, Mail, ArrowRight, ShieldCheck, Sparkles, AlertCircle, Compass, Box } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { loginInputSchema } from '../schemas';
+import { LogisticsCanvasMotion } from '../components/LogisticsCanvasMotion';
 
 export const Login: React.FC = () => {
   const { login, switchDemoUser } = useAuth();
@@ -42,94 +43,122 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 selection:bg-brand-500 selection:text-white">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="inline-flex p-3 bg-brand-600 rounded-2xl shadow-lg mb-3">
-          <Gavel className="w-8 h-8 text-white" />
+    <div className="relative min-h-screen bg-[#0e1013] overflow-hidden flex flex-col justify-center py-12 sm:px-6 lg:px-8 selection:bg-white selection:text-black">
+      {/* Interactive Logistics Canvas Motion */}
+      <LogisticsCanvasMotion />
+
+      {/* Subtle overlay gradient to ensure readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0e1013]/60 via-transparent to-[#0e1013]/90 pointer-events-none z-0" />
+
+      <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-lg text-center px-4">
+        <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-4 text-xs font-mono text-neutral-300">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>GLOBAL FREIGHT PROCUREMENT ENGINE</span>
         </div>
-        <h2 className="text-3xl font-extrabold text-white tracking-tight">
-          British Auction in RFQ System
-        </h2>
-        <p className="mt-2 text-xs text-slate-400">
-          Reverse procurement platform with dynamic time extensions and forced close rules.
+
+        <div className="flex items-center justify-center space-x-3 mb-2">
+          <div className="p-2.5 bg-black text-white rounded-2xl border border-white/20 shadow-2xl">
+            <Gavel className="w-7 h-7" />
+          </div>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">
+            GoComet British Auction
+          </h1>
+        </div>
+
+        <p className="text-xs text-neutral-400 max-w-md mx-auto leading-relaxed">
+          Dynamic reverse procurement platform with automated trigger extensions, live rankings, and forced close ceilings.
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
+      <div className="relative z-10 mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
         {/* Quick Demo Launch Card */}
-        <div className="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 mb-5 shadow-xl">
-          <div className="flex items-center space-x-2 mb-3">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-amber-300">
-              Quick 1-Click Demo Logins
-            </h3>
+        <div className="bg-[#181a1f]/85 border border-white/10 backdrop-blur-xl rounded-2xl p-4 mb-4 shadow-2xl">
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="flex items-center space-x-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-neutral-300" />
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-neutral-200">
+                1-Click Demo Personas
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono text-neutral-400">Pre-authenticated</span>
           </div>
+
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => switchDemoUser('buyer')}
-              className="p-2.5 rounded-xl bg-slate-700/80 hover:bg-slate-700 text-left border border-slate-600 text-white transition text-xs group"
+              className="p-2.5 rounded-xl bg-black/60 hover:bg-black text-left border border-white/10 text-white transition text-xs group active:scale-[0.98]"
             >
               <div className="font-bold flex items-center justify-between">
                 <span>Acme Corp</span>
-                <span className="text-[10px] bg-brand-500/20 text-brand-300 px-1.5 py-0.2 rounded">Buyer</span>
+                <span className="text-[9px] bg-white/15 text-white px-1.5 py-0.5 rounded font-mono">BUYER</span>
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Full RFQ control</div>
+              <div className="text-[10px] text-neutral-400 mt-0.5">Procurement manager</div>
             </button>
 
             <button
               type="button"
               onClick={() => switchDemoUser('bluedart')}
-              className="p-2.5 rounded-xl bg-slate-700/80 hover:bg-slate-700 text-left border border-slate-600 text-white transition text-xs group"
+              className="p-2.5 rounded-xl bg-black/60 hover:bg-black text-left border border-white/10 text-white transition text-xs group active:scale-[0.98]"
             >
               <div className="font-bold flex items-center justify-between">
                 <span>Blue Dart</span>
-                <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.2 rounded">L1 Leader</span>
+                <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">L1 LEADER</span>
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Holds lowest bid</div>
+              <div className="text-[10px] text-neutral-400 mt-0.5">Holds lowest bid</div>
             </button>
 
             <button
               type="button"
               onClick={() => switchDemoUser('dhl')}
-              className="p-2.5 rounded-xl bg-slate-700/80 hover:bg-slate-700 text-left border border-slate-600 text-white transition text-xs group"
+              className="p-2.5 rounded-xl bg-black/60 hover:bg-black text-left border border-white/10 text-white transition text-xs group active:scale-[0.98]"
             >
               <div className="font-bold flex items-center justify-between">
                 <span>DHL Express</span>
-                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded">L2 Challenger</span>
+                <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-mono">L2 CARRIER</span>
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Ready to counter</div>
+              <div className="text-[10px] text-neutral-400 mt-0.5">Challenger quote</div>
             </button>
 
             <button
               type="button"
               onClick={() => switchDemoUser('fedex')}
-              className="p-2.5 rounded-xl bg-slate-700/80 hover:bg-slate-700 text-left border border-slate-600 text-white transition text-xs group"
+              className="p-2.5 rounded-xl bg-black/60 hover:bg-black text-left border border-white/10 text-white transition text-xs group active:scale-[0.98]"
             >
               <div className="font-bold flex items-center justify-between">
                 <span>FedEx Freight</span>
-                <span className="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.2 rounded">L3 Carrier</span>
+                <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-mono">L3 CARRIER</span>
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Invited supplier</div>
+              <div className="text-[10px] text-neutral-400 mt-0.5">Invited supplier</div>
             </button>
           </div>
         </div>
 
-        {/* Standard Login Form */}
-        <div className="bg-white py-8 px-6 shadow-2xl rounded-2xl sm:px-8 border border-slate-200">
+        {/* Standard Dusky White Login Form */}
+        <div className="bg-[#fbfbfa] py-7 px-6 shadow-2xl rounded-3xl sm:px-8 border border-[#e5e5e3]">
+          <div className="mb-4 text-center">
+            <h2 className="text-sm font-bold text-neutral-900 uppercase tracking-wider">
+              Operator Sign In
+            </h2>
+            <p className="text-[11px] text-neutral-500 mt-0.5">
+              Enter your logistics enterprise credentials
+            </p>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
-                {error}
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
+                <span>{error}</span>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Email Address
+              <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                Corporate Email Address
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <Mail className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
                 <input
                   type="email"
                   required
@@ -139,9 +168,9 @@ export const Login: React.FC = () => {
                     setEmail(e.target.value);
                     if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }));
                   }}
-                  className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${
-                    fieldErrors.email ? 'border-rose-400 focus:ring-rose-500 bg-rose-50/30' : 'border-slate-300 focus:ring-brand-500'
-                  } focus:ring-2 outline-none transition`}
+                  className={`w-full pl-9 pr-3 py-2 text-sm rounded-xl border bg-white ${
+                    fieldErrors.email ? 'border-rose-400 focus:ring-rose-500 bg-rose-50/20' : 'border-[#d8d8d6] focus:ring-black'
+                  } focus:ring-2 outline-none transition font-sans`}
                 />
               </div>
               {fieldErrors.email && (
@@ -153,11 +182,11 @@ export const Login: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-neutral-700 mb-1">
                 Password
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <Lock className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
                 <input
                   type="password"
                   required
@@ -167,9 +196,9 @@ export const Login: React.FC = () => {
                     setPassword(e.target.value);
                     if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }));
                   }}
-                  className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${
-                    fieldErrors.password ? 'border-rose-400 focus:ring-rose-500 bg-rose-50/30' : 'border-slate-300 focus:ring-brand-500'
-                  } focus:ring-2 outline-none transition`}
+                  className={`w-full pl-9 pr-3 py-2 text-sm rounded-xl border bg-white ${
+                    fieldErrors.password ? 'border-rose-400 focus:ring-rose-500 bg-rose-50/20' : 'border-[#d8d8d6] focus:ring-black'
+                  } focus:ring-2 outline-none transition font-sans`}
                 />
               </div>
               {fieldErrors.password && (
@@ -180,22 +209,22 @@ export const Login: React.FC = () => {
               )}
             </div>
 
+            {/* Black Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center space-x-2 py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-bold transition shadow-sm disabled:opacity-50"
+              className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-black hover:bg-neutral-800 text-white rounded-xl text-xs font-bold transition shadow-md disabled:opacity-50 border border-black active:scale-[0.99] tracking-wide"
             >
-              <span>{isLoading ? 'Signing In...' : 'Sign In with Credentials'}</span>
+              <span>{isLoading ? 'Authenticating...' : 'Sign In to Terminal'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          <div className="mt-5 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
-            Default Demo Password for all accounts: <code className="font-mono bg-slate-100 px-1 py-0.5 rounded text-slate-700">password123</code>
+          <div className="mt-4 pt-3 border-t border-[#ebebe9] text-center text-xs text-neutral-500">
+            Demo Password: <code className="font-mono bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-800 font-semibold">password123</code>
           </div>
         </div>
       </div>
     </div>
   );
 };
-

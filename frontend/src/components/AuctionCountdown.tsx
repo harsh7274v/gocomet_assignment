@@ -61,11 +61,11 @@ export const AuctionCountdown: React.FC<AuctionCountdownProps> = ({
   const isUrgent = !isClosed && timeLeftMs <= 2 * 60 * 1000;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <div className="bg-[#fdfdfd] rounded-2xl border border-[#e5e5e3] p-5 shadow-xs">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <Clock className={`w-5 h-5 ${isUrgent ? 'text-rose-600 animate-pulse' : isInsideTriggerWindow ? 'text-amber-500' : 'text-brand-600'}`} />
-          <h3 className="font-semibold text-slate-800 text-sm tracking-wide uppercase">
+          <Clock className={`w-5 h-5 ${isUrgent ? 'text-rose-600 animate-pulse' : isInsideTriggerWindow ? 'text-amber-500' : 'text-neutral-900'}`} />
+          <h3 className="font-bold text-neutral-900 text-sm tracking-wide uppercase">
             Auction Countdown
           </h3>
         </div>

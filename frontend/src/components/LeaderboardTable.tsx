@@ -62,22 +62,22 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+    <div className="bg-[#fdfdfd] rounded-2xl border border-[#e5e5e3] shadow-xs overflow-hidden">
+      <div className="px-5 py-4 border-b border-[#e5e5e3] flex items-center justify-between bg-[#fafaf9]">
         <div className="flex items-center space-x-2">
-          <Trophy className="w-5 h-5 text-amber-500" />
-          <h3 className="font-semibold text-slate-800 text-sm">
+          <Trophy className="w-5 h-5 text-neutral-800" />
+          <h3 className="font-bold text-neutral-900 text-sm">
             Supplier Leaderboard & Pricing Breakdown
           </h3>
         </div>
-        <span className="text-xs font-medium text-slate-500">
+        <span className="text-xs font-medium text-neutral-500">
           {entries.length} {entries.length === 1 ? 'Supplier' : 'Suppliers'} Competing
         </span>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-slate-600 text-xs font-semibold uppercase tracking-wider border-b border-slate-200">
+          <thead className="bg-[#fafaf9] text-neutral-600 text-xs font-semibold uppercase tracking-wider border-b border-[#e5e5e3]">
             <tr>
               <th className="px-5 py-3.5">Rank</th>
               <th className="px-5 py-3.5">Carrier / Supplier</th>
@@ -118,7 +118,7 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                         {entry.carrier_name}
                       </span>
                       {isMe && (
-                        <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-brand-600 text-white">
+                        <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-black text-white font-mono">
                           You
                         </span>
                       )}
@@ -159,7 +159,7 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                       ) : (
                         <button
                           onClick={() => onAwardContract(entry.supplier_id, entry.carrier_name, entry.total_amount)}
-                          className="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition"
+                          className="px-3 py-1.5 text-xs font-bold rounded-xl bg-black hover:bg-neutral-800 text-white shadow-xs transition border border-black active:scale-[0.98]"
                         >
                           Award Contract
                         </button>

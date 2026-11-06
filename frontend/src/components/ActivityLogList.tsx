@@ -57,10 +57,10 @@ export const ActivityLogList: React.FC<ActivityLogListProps> = ({ logs }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-      <div className="flex items-center space-x-2 pb-4 mb-4 border-b border-slate-100">
-        <History className="w-5 h-5 text-slate-700" />
-        <h3 className="font-semibold text-slate-800 text-sm">
+    <div className="bg-[#fdfdfd] rounded-2xl border border-[#e5e5e3] shadow-xs p-5">
+      <div className="flex items-center space-x-2 pb-4 mb-4 border-b border-[#e5e5e3]">
+        <History className="w-5 h-5 text-neutral-800" />
+        <h3 className="font-bold text-neutral-900 text-sm">
           Live Auction Audit Log & Extension History
         </h3>
       </div>

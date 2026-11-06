@@ -312,15 +312,15 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
-      <div className="relative bg-white rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-200 flex flex-col max-h-[90vh] overflow-hidden my-auto">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+      <div className="relative bg-[#fbfbfa] rounded-3xl max-w-3xl w-full shadow-2xl border border-[#e5e5e3] flex flex-col max-h-[90vh] overflow-hidden my-auto">
         {/* Header */}
-        <div className="flex-shrink-0 px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+        <div className="flex-shrink-0 px-6 py-4 bg-[#141413] text-white flex items-center justify-between border-b border-white/10">
           <div className="flex items-center space-x-2">
-            <Gavel className="w-5 h-5 text-brand-400" />
-            <h2 className="text-base font-bold">Create RFQ with British Auction</h2>
+            <Gavel className="w-5 h-5 text-neutral-300" />
+            <h2 className="text-base font-bold tracking-tight">Create British Auction RFQ</h2>
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition">
+          <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-lg text-neutral-400 hover:text-white transition">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -699,18 +699,18 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
                   <div
                     key={sup.id}
                     onClick={() => toggleSupplier(sup.id)}
-                    className={`p-3 rounded-lg border flex items-center justify-between cursor-pointer transition ${
+                    className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition ${
                       isSelected
-                        ? 'border-brand-500 bg-brand-50/40 text-brand-900'
-                        : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                        ? 'border-black bg-neutral-100 text-neutral-900 shadow-xs'
+                        : 'border-[#e5e5e3] hover:bg-[#fafaf9] text-neutral-700'
                     }`}
                   >
                     <div>
                       <div className="text-xs font-bold">{sup.carrier_name}</div>
-                      <div className="text-[10px] text-slate-500">{sup.email}</div>
+                      <div className="text-[10px] text-neutral-500 font-mono">{sup.email}</div>
                     </div>
                     <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${
-                      isSelected ? 'bg-brand-600 border-brand-600 text-white' : 'border-slate-300'
+                      isSelected ? 'bg-black border-black text-white' : 'border-[#d0d0ce]'
                     }`}>
                       {isSelected && <Check className="w-3.5 h-3.5" />}
                     </div>
@@ -723,18 +723,18 @@ export const CreateRFQModal: React.FC<CreateRFQModalProps> = ({ isOpen, onClose,
           </div>
 
           {/* Sticky Footer Actions */}
-          <div className="flex-shrink-0 px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end space-x-3">
+          <div className="flex-shrink-0 px-6 py-4 bg-[#fafaf9] border-t border-[#e5e5e3] flex items-center justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 rounded-lg transition"
+              className="px-4 py-2 text-xs font-semibold text-neutral-600 hover:bg-neutral-200 rounded-xl transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl transition shadow-md disabled:opacity-50 cursor-pointer active:scale-98"
+              className="px-6 py-2.5 text-xs font-bold text-white bg-black hover:bg-neutral-800 rounded-xl transition shadow-md disabled:opacity-50 cursor-pointer active:scale-98 border border-black"
             >
               {isSubmitting ? 'Creating & Publishing RFQ...' : 'Create & Publish RFQ'}
             </button>

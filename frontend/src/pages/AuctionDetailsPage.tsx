@@ -150,19 +150,19 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
         <div className="flex items-center space-x-3">
           <button
             onClick={onBack}
-            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition"
+            className="p-2 rounded-xl border border-[#d8d8d6] bg-white hover:bg-neutral-100 text-neutral-800 transition shadow-xs"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+              <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-neutral-100 text-neutral-800 border border-neutral-200">
                 {rfq.reference_id}
               </span>
-              <span className="text-xs text-slate-400">•</span>
-              <span className="text-xs font-semibold text-slate-500 uppercase">{rfq.service_type}</span>
+              <span className="text-xs text-neutral-400">•</span>
+              <span className="text-xs font-semibold text-neutral-500 uppercase">{rfq.service_type}</span>
             </div>
-            <h1 className="text-xl font-extrabold text-slate-900 mt-0.5">
+            <h1 className="text-xl font-extrabold text-neutral-900 mt-0.5">
               {rfq.name}
             </h1>
           </div>
@@ -173,7 +173,7 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
           <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${
             isConnected
               ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-              : 'bg-slate-100 text-slate-600 border-slate-300'
+              : 'bg-neutral-100 text-neutral-600 border-neutral-300'
           }`}>
             {isConnected ? (
               <>
@@ -182,7 +182,7 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
               </>
             ) : (
               <>
-                <WifiOff className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+                <WifiOff className="w-3.5 h-3.5 mr-1.5 text-neutral-400" />
                 <span>Syncing via Polling</span>
               </>
             )}
@@ -192,9 +192,9 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
             onClick={handleManualRefresh}
             disabled={isRefreshing}
             title="Refresh Live Data"
-            className="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl border border-[#d8d8d6] bg-white hover:bg-neutral-100 text-neutral-800 text-xs font-semibold shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand-600' : 'text-slate-600'}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-neutral-900' : 'text-neutral-700'}`} />
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
         </div>
@@ -284,9 +284,9 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
       </div>
 
       {/* Shipment & Route Overview Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="bg-[#fdfdfd] rounded-2xl border border-[#e5e5e3] p-5 shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="flex items-start space-x-3">
-          <div className="p-2.5 rounded-xl bg-brand-50 text-brand-600 mt-0.5">
+          <div className="p-2.5 rounded-xl bg-neutral-100 text-neutral-800 mt-0.5">
             <MapPin className="w-5 h-5" />
           </div>
           <div>
@@ -360,11 +360,11 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
         </div>
 
         {/* Configuration Card */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between">
+        <div className="bg-[#fdfdfd] rounded-2xl border border-[#e5e5e3] p-5 shadow-xs flex flex-col justify-between">
           <div>
-            <div className="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-100">
-              <Sliders className="w-4 h-4 text-brand-600" />
-              <h3 className="font-semibold text-slate-800 text-xs uppercase tracking-wide">
+            <div className="flex items-center space-x-2 pb-3 mb-3 border-b border-[#e5e5e3]">
+              <Sliders className="w-4 h-4 text-neutral-800" />
+              <h3 className="font-semibold text-neutral-800 text-xs uppercase tracking-wide">
                 British Auction Rules
               </h3>
             </div>

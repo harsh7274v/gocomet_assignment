@@ -11,76 +11,76 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigateHome }) =
   const { user, logout, switchDemoUser } = useAuth();
 
   return (
-    <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40 shadow-sm">
+    <header className="bg-[#121316] border-b border-white/10 text-white sticky top-0 z-40 shadow-sm backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Brand */}
           <div className="flex items-center space-x-3 cursor-pointer" onClick={onNavigateHome}>
-            <div className="bg-brand-600 p-2 rounded-lg text-white shadow-md">
-              <Gavel className="w-5 h-5" />
+            <div className="bg-black border border-white/20 p-2 rounded-xl text-white shadow-md">
+              <Gavel className="w-5 h-5 text-neutral-100" />
             </div>
             <div>
-              <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+              <span className="font-extrabold text-base tracking-tight text-white font-sans">
                 GoComet RFQ
               </span>
-              <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30">
+              <span className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-neutral-200 border border-white/10 font-mono uppercase tracking-wider">
                 British Auction
               </span>
             </div>
           </div>
 
           {/* Quick Demo Switcher Bar */}
-          <div className="hidden lg:flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/60 text-xs">
-            <span className="text-slate-400 font-medium flex items-center mr-1">
-              <ArrowLeftRight className="w-3.5 h-3.5 mr-1 text-slate-400" />
-              Demo Switch:
+          <div className="hidden lg:flex items-center space-x-1.5 bg-black/60 px-3 py-1.5 rounded-full border border-white/10 text-xs">
+            <span className="text-neutral-400 font-medium flex items-center mr-1 text-[11px]">
+              <ArrowLeftRight className="w-3.5 h-3.5 mr-1 text-neutral-400" />
+              Switch:
             </span>
             <button
               onClick={() => switchDemoUser('buyer')}
-              className={`px-2.5 py-1 rounded-full font-medium transition ${
+              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition ${
                 user?.role === 'BUYER'
-                  ? 'bg-brand-600 text-white shadow'
-                  : 'text-slate-300 hover:bg-slate-700'
+                  ? 'bg-white text-black shadow-sm'
+                  : 'text-neutral-400 hover:text-white hover:bg-white/10'
               }`}
             >
               Buyer (Acme)
             </button>
             <button
               onClick={() => switchDemoUser('bluedart')}
-              className={`px-2.5 py-1 rounded-full font-medium transition ${
+              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition ${
                 user?.supplier_profile?.carrier_name?.includes('Blue Dart')
-                  ? 'bg-blue-600 text-white shadow'
-                  : 'text-slate-300 hover:bg-slate-700'
+                  ? 'bg-white text-black shadow-sm'
+                  : 'text-neutral-400 hover:text-white hover:bg-white/10'
               }`}
             >
               Blue Dart (L1)
             </button>
             <button
               onClick={() => switchDemoUser('dhl')}
-              className={`px-2.5 py-1 rounded-full font-medium transition ${
+              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition ${
                 user?.supplier_profile?.carrier_name?.includes('DHL')
-                  ? 'bg-amber-600 text-white shadow'
-                  : 'text-slate-300 hover:bg-slate-700'
+                  ? 'bg-white text-black shadow-sm'
+                  : 'text-neutral-400 hover:text-white hover:bg-white/10'
               }`}
             >
               DHL (L2)
             </button>
             <button
               onClick={() => switchDemoUser('fedex')}
-              className={`px-2.5 py-1 rounded-full font-medium transition ${
+              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition ${
                 user?.supplier_profile?.carrier_name?.includes('FedEx')
-                  ? 'bg-purple-600 text-white shadow'
-                  : 'text-slate-300 hover:bg-slate-700'
+                  ? 'bg-white text-black shadow-sm'
+                  : 'text-neutral-400 hover:text-white hover:bg-white/10'
               }`}
             >
               FedEx (L3)
             </button>
             <button
               onClick={() => switchDemoUser('delhivery')}
-              className={`px-2.5 py-1 rounded-full font-medium transition ${
+              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition ${
                 user?.supplier_profile?.carrier_name?.includes('Delhivery')
-                  ? 'bg-emerald-600 text-white shadow'
-                  : 'text-slate-300 hover:bg-slate-700'
+                  ? 'bg-white text-black shadow-sm'
+                  : 'text-neutral-400 hover:text-white hover:bg-white/10'
               }`}
             >
               Delhivery
