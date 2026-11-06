@@ -118,3 +118,4 @@ flowchart TD
     - Forced close hard ceiling clamping ($T_{close} + Y > T_{forced} \implies T_{close} = T_{forced}$).
     - Downside bid rejection (submitting higher or equal price returns `400`).
     - Non-invited supplier rejection (returns `403`).
+

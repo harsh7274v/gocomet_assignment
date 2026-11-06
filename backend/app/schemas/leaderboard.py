@@ -25,3 +25,4 @@ class LeaderboardResponse(BaseModel):
     lowest_bid_amount: Optional[float] = None
     winning_supplier: Optional[str] = None
     entries: List[LeaderboardEntry]
+

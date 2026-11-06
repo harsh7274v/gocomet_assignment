@@ -1,21 +1,60 @@
+import asyncio
+from datetime import datetime
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query
 from fastapi.middleware.cors import CORSMiddleware
-from jose import jwt, JWTError
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.database import Base, engine
+from app.core.database import Base, engine, SessionLocal
 from app.seed import seed_database
+from app.models.rfq import RFQ, RFQStatus
 from app.routers import auth, rfqs, bids, auctions
+from app.services.auction_engine import AuctionEngine
 from app.websockets.connection_manager import ws_manager
+
+async def auction_lifecycle_worker():
+    """
+    Background worker that monitors all active and scheduled auctions every 5 seconds.
+    Automatically closes expired auctions and broadcasts events over WebSockets.
+    """
+    while True:
+        try:
+            await asyncio.sleep(5)
+            db: Session = SessionLocal()
+            try:
+                active_rfqs = (
+                    db.query(RFQ)
+                    .filter(RFQ.status.in_([RFQStatus.ACTIVE, RFQStatus.SCHEDULED]))
+                    .all()
+                )
+                now = datetime.utcnow()
+                for rfq in active_rfqs:
+                    prev_status = rfq.status
+                    new_status = AuctionEngine.sync_auction_status(db, rfq, now)
+                    if prev_status != new_status and new_status in (RFQStatus.CLOSED, RFQStatus.FORCE_CLOSED):
+                        # Broadcast closure to connected WebSocket clients
+                        await ws_manager.broadcast_to_room(rfq.id, {
+                            "type": "AUCTION_CLOSED",
+                            "rfq_id": rfq.id,
+                            "status": new_status.value,
+                            "closed_at": now.isoformat()
+                        })
+            finally:
+                db.close()
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            print(f"[Auction Lifecycle Worker Warning]: {e}")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: ensure tables exist and seed default demo accounts & RFQs
     Base.metadata.create_all(bind=engine)
     seed_database()
+    worker_task = asyncio.create_task(auction_lifecycle_worker())
     yield
-    # Shutdown logic if needed
+    worker_task.cancel()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -64,7 +103,6 @@ async def websocket_auction_endpoint(
     """
     await ws_manager.connect(rfq_id, websocket)
     try:
-        # Send initial connected confirmation
         await websocket.send_json({
             "type": "CONNECTION_ESTABLISHED",
             "rfq_id": rfq_id,
@@ -72,7 +110,6 @@ async def websocket_auction_endpoint(
         })
 
         while True:
-            # Keep connection open; clients can also send ping/heartbeat
             data = await websocket.receive_text()
             if data == "ping":
                 await websocket.send_text("pong")

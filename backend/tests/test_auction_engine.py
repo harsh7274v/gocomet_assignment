@@ -190,3 +190,4 @@ def test_forced_close_ceiling_clamping():
     assert res.new_close_at == forced_at
     assert res.was_clamped_to_forced_close is True
     assert "Forced Close ceiling" in res.reason
+

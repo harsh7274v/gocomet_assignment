@@ -447,3 +447,4 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
     </div>
   );
 };
+

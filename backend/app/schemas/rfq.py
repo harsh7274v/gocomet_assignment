@@ -97,3 +97,4 @@ class RFQDetailResponse(BaseModel):
 
     class Config:
         from_attributes = True
+

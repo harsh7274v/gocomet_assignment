@@ -125,3 +125,4 @@ export const AuctionCountdown: React.FC<AuctionCountdownProps> = ({
     </div>
   );
 };
+

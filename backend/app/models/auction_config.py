@@ -25,3 +25,4 @@ class AuctionConfiguration(Base):
 
     # Relationship
     rfq = relationship("RFQ", back_populates="auction_config")
+

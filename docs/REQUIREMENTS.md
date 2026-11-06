@@ -104,3 +104,4 @@ Every material state change in an RFQ must be recorded in the `activity_logs` ta
 - `AUCTION_EXTENDED`: Trigger type, Triggering bid ID, Previous Close Time, New Close Time, Extended Minutes, Forced Close Time.
 - `AUCTION_CLOSED`: Timestamp, winning $L1$ supplier, final closing price.
 - `AUCTION_FORCE_CLOSED`: Timestamp of hard ceiling breach.
+

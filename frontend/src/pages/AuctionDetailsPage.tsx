@@ -10,7 +10,11 @@ import {
   Sliders, 
   TrendingDown, 
   CheckCircle2,
-  RefreshCw
+  RefreshCw,
+  Sparkles,
+  Zap,
+  FastForward,
+  Play
 } from 'lucide-react';
 import { api } from '../services/api';
 import { RFQDetail, LeaderboardResponse, ActivityLog } from '../types';
@@ -32,6 +36,10 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
   const [leaderboard, setLeaderboard] = useState<LeaderboardResponse | null>(null);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Simulation state
+  const [simLoading, setSimLoading] = useState(false);
+  const [simMessage, setSimMessage] = useState<string | null>(null);
 
   // Real-time WebSocket connection hook
   const { isConnected, latestEvent, extensionNotice, dismissNotice } = useAuctionSocket(rfqId);
@@ -68,6 +76,38 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
       api.getActivityLogs(rfqId).then(setActivityLogs).catch(console.error);
     }
   }, [latestEvent, rfqId]);
+
+  const handleSimulateBid = async (carrierEmail: string, amount: number) => {
+    setSimLoading(true);
+    setSimMessage(null);
+    try {
+      const res = await api.simulateBid(rfqId, carrierEmail, amount);
+      if (res.extension?.should_extend) {
+        setSimMessage(`Success! Bid ₹${amount.toLocaleString()} triggered extension: +${res.extension.extended_minutes}m added!`);
+      } else {
+        setSimMessage(`Bid ₹${amount.toLocaleString()} submitted (No extension triggered: ${res.extension?.reason || 'None'}).`);
+      }
+      await fetchFullState();
+    } catch (err: any) {
+      setSimMessage(`Simulation error: ${err.message}`);
+    } finally {
+      setSimLoading(false);
+    }
+  };
+
+  const handleFastForward = async (minutes: number) => {
+    setSimLoading(true);
+    setSimMessage(null);
+    try {
+      const res = await api.fastForward(rfqId, minutes);
+      setSimMessage(`Clock shifted! Closing deadline moved to ${minutes} minutes from now (Trigger Window Active).`);
+      await fetchFullState();
+    } catch (err: any) {
+      setSimMessage(`Error: ${err.message}`);
+    } finally {
+      setSimLoading(false);
+    }
+  };
 
   if (isLoading || !rfq) {
     return (
@@ -140,6 +180,89 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
             className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition"
           >
             <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Interactive Trigger & Extension Simulator Card */}
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 border border-indigo-800/60 shadow-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 mb-3 border-b border-indigo-800/50">
+          <div className="flex items-center space-x-2">
+            <Sparkles className="w-5 h-5 text-amber-400" />
+            <h3 className="text-sm font-bold tracking-wide">
+              Evaluator Live Simulation Cockpit
+            </h3>
+          </div>
+          <span className="text-[11px] text-indigo-300">
+            Instantly test all 3 trigger rules, time extensions, and forced close caps with 1 click
+          </span>
+        </div>
+
+        {simMessage && (
+          <div className="mb-3 px-3 py-2 rounded-lg bg-indigo-900/80 border border-indigo-500/50 text-xs text-amber-200 font-medium">
+            {simMessage}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+          {/* Action 1: Fast Forward Clock */}
+          <button
+            onClick={() => handleFastForward(3)}
+            disabled={simLoading}
+            className="p-3 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-left transition disabled:opacity-50"
+          >
+            <div className="font-bold flex items-center text-amber-300">
+              <FastForward className="w-3.5 h-3.5 mr-1" />
+              1. Enter Trigger Window
+            </div>
+            <div className="text-[10px] text-slate-400 mt-1">
+              Shifts close time to 3 mins from now to activate monitoring.
+            </div>
+          </button>
+
+          {/* Action 2: Simulate DHL bid */}
+          <button
+            onClick={() => handleSimulateBid('dhl@supplier.com', 46000)}
+            disabled={simLoading}
+            className="p-3 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-left transition disabled:opacity-50"
+          >
+            <div className="font-bold flex items-center text-emerald-300">
+              <Zap className="w-3.5 h-3.5 mr-1" />
+              2. DHL Underbids (₹46k)
+            </div>
+            <div className="text-[10px] text-slate-400 mt-1">
+              DHL overtakes Blue Dart as L1. Triggers British Extension!
+            </div>
+          </button>
+
+          {/* Action 3: Simulate FedEx counter-bid */}
+          <button
+            onClick={() => handleSimulateBid('fedex@supplier.com', 45000)}
+            disabled={simLoading}
+            className="p-3 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-left transition disabled:opacity-50"
+          >
+            <div className="font-bold flex items-center text-purple-300">
+              <Zap className="w-3.5 h-3.5 mr-1" />
+              3. FedEx Counter (₹45k)
+            </div>
+            <div className="text-[10px] text-slate-400 mt-1">
+              FedEx overtakes DHL as new L1. Extends auction further!
+            </div>
+          </button>
+
+          {/* Action 4: Simulate Blue Dart counter-bid */}
+          <button
+            onClick={() => handleSimulateBid('bluedart@supplier.com', 44000)}
+            disabled={simLoading}
+            className="p-3 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-left transition disabled:opacity-50"
+          >
+            <div className="font-bold flex items-center text-blue-300">
+              <Zap className="w-3.5 h-3.5 mr-1" />
+              4. Blue Dart Counter (₹44k)
+            </div>
+            <div className="text-[10px] text-slate-400 mt-1">
+              Reclaims L1 position. Observes forced ceiling cap if near.
+            </div>
           </button>
         </div>
       </div>

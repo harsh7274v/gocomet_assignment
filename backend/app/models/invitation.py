@@ -26,3 +26,4 @@ class RFQInvitation(Base):
     # Relationships
     rfq = relationship("RFQ", back_populates="invitations")
     supplier = relationship("User", back_populates="invitations")
+

@@ -43,3 +43,4 @@ class RFQ(Base):
     invitations = relationship("RFQInvitation", back_populates="rfq", cascade="all, delete-orphan")
     bids = relationship("Bid", back_populates="rfq", cascade="all, delete-orphan")
     activity_logs = relationship("ActivityLog", back_populates="rfq", cascade="all, delete-orphan")
+

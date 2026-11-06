@@ -39,3 +39,4 @@ class SupplierProfile(Base):
 
     # Relationship
     user = relationship("User", back_populates="supplier_profile")
+

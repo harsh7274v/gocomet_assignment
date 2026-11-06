@@ -120,3 +120,4 @@ def get_my_bids(
         )
         for b in bids
     ]
+

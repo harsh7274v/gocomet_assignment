@@ -48,3 +48,4 @@ def require_supplier(current_user: User = Depends(get_current_user)) -> User:
             detail="Supplier permissions required for this operation."
         )
     return current_user
+

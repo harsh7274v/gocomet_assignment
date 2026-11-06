@@ -54,3 +54,4 @@ export const ExtensionBanner: React.FC<ExtensionBannerProps> = ({ notice, onDism
     </div>
   );
 };
+

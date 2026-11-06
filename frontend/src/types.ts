@@ -139,3 +139,4 @@ export interface ActivityLog {
   details?: any;
   created_at: string;
 }
+

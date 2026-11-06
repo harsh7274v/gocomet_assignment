@@ -81,3 +81,4 @@ export function useAuctionSocket(rfqId?: string) {
 
   return { isConnected, latestEvent, extensionNotice, dismissNotice };
 }
+

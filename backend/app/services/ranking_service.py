@@ -90,3 +90,4 @@ class RankingService:
             })
 
         return leaderboard
+

@@ -108,3 +108,4 @@ def test_downside_bidding_rule_rejection():
     })
     assert bad_bid.status_code == 400
     assert "Downside bidding rule violation" in bad_bid.json()["detail"]
+

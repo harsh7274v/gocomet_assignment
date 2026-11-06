@@ -265,3 +265,4 @@ class AuctionEngine:
             print(f"[WebSocket Broadcast Warning]: {e}")
 
         return new_bid, extension_result, {"rank": new_rank, "leaderboard": post_leaderboard}
+

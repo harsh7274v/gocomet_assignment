@@ -276,3 +276,4 @@ export const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ onSelectRFQ }) =
     </div>
   );
 };
+

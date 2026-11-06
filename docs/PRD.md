@@ -132,3 +132,4 @@ When a bid is submitted at timestamp $T_{event}$:
 - **Concurrency & Atomicity:** Database transactions serialize bid evaluations (`SELECT ... FOR UPDATE` on the RFQ record) to prevent race conditions during simultaneous bids.
 - **Sub-Second Real-Time Updates:** WebSockets push leaderboard changes, extension notices, and countdown synchronizations with $< 200\text{ ms}$ latency.
 - **Audit Trails:** Immutable activity logs store every bid, ranking transition, and time extension with detailed contextual metadata.
+

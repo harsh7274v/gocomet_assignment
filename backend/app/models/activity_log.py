@@ -30,3 +30,4 @@ class ActivityLog(Base):
     # Relationships
     rfq = relationship("RFQ", back_populates="activity_logs")
     actor = relationship("User", back_populates="activity_logs")
+

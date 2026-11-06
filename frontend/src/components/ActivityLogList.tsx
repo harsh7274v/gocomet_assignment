@@ -105,3 +105,4 @@ export const ActivityLogList: React.FC<ActivityLogListProps> = ({ logs }) => {
     </div>
   );
 };
+

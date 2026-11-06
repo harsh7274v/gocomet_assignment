@@ -31,3 +31,4 @@ class Bid(Base):
     # Relationships
     rfq = relationship("RFQ", back_populates="bids")
     supplier = relationship("User", back_populates="bids")
+

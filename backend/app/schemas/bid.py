@@ -25,3 +25,4 @@ class BidResponse(BaseModel):
 
     class Config:
         from_attributes = True
+

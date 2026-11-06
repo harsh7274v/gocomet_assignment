@@ -148,3 +148,4 @@ class ExtensionService:
             reason=trigger_reason,
             was_clamped_to_forced_close=was_clamped
         )
+

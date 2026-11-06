@@ -234,3 +234,4 @@ erDiagram
   - `LEADERBOARD_UPDATED`: Full updated rankings.
   - `AUCTION_EXTENDED`: `{ new_close_at, extension_minutes, reason, forced_close_at }`
   - `AUCTION_CLOSED`: `{ status: "CLOSED" | "FORCE_CLOSED" }`
+

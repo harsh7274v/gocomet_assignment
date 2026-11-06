@@ -143,3 +143,4 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
     </div>
   );
 };
+

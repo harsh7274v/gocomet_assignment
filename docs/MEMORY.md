@@ -66,3 +66,4 @@
 - **ADR-03: Dynamic Leaderboard Computation vs Cached Materialized Views**
   - *Context:* Auctions typically have 3–20 participating carriers with 10–100 bids per RFQ.
   - *Decision:* Querying the latest bid per supplier via SQL window functions (`ROW_NUMBER() OVER (PARTITION BY supplier_id ORDER BY submitted_at DESC)`) is sub-millisecond fast, perfectly consistent, and eliminates cache-invalidation bugs.
+
