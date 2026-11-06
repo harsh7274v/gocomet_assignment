@@ -12,6 +12,7 @@ import {
 import { api } from '../services/api';
 import { RFQListItem } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { formatTimeLocal } from '../components/AuctionCountdown';
 
 interface SupplierDashboardProps {
   onSelectRFQ: (rfqId: string) => void;
@@ -133,7 +134,7 @@ export const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ onSelectRF
                       Close Deadline
                     </div>
                     <div className="text-xs font-mono font-medium text-slate-700">
-                      {new Date(rfq.current_close_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {formatTimeLocal(rfq.current_close_at)}
                     </div>
                   </div>
 

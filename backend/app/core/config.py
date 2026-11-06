@@ -1,6 +1,10 @@
 import os
 from pydantic_settings import BaseSettings
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DEFAULT_DB_PATH = os.path.join(BASE_DIR, "rfq_auction.db")
+DEFAULT_SQLITE_URL = f"sqlite:///{DEFAULT_DB_PATH}"
+
 class Settings(BaseSettings):
     PROJECT_NAME: str = "British Auction in RFQ System"
     VERSION: str = "1.0.0"
@@ -10,12 +14,14 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     
-    # SQLite default for local zero-dependency testing; easily switched to PostgreSQL via DATABASE_URL
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./rfq_auction.db")
+    # Absolute path ensures seamless resolution regardless of execution working directory
+    DATABASE_URL: str = os.getenv("DATABASE_URL", DEFAULT_SQLITE_URL)
     
     CORS_ORIGINS: list = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "*"
@@ -25,4 +31,3 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 settings = Settings()
-

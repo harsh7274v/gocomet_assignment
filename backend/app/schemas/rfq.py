@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from typing import Optional, List
-from pydantic import BaseModel, Field, model_validator, field_validator
+from pydantic import BaseModel, Field, model_validator, field_validator, field_serializer
 from app.models.rfq import RFQStatus
 from app.models.auction_config import ExtensionTrigger
 from app.models.invitation import InvitationStatus
@@ -91,6 +91,12 @@ class RFQListItemResponse(BaseModel):
     total_suppliers_count: int = 0
     created_at: datetime
 
+    @field_serializer("pickup_at", "bid_start_at", "current_close_at", "forced_close_at", "created_at", when_used="json")
+    def serialize_utc_dt(self, dt: datetime, _info):
+        if dt.tzinfo is None:
+            return dt.replace(tzinfo=timezone.utc).isoformat()
+        return dt.isoformat()
+
 class RFQDetailResponse(BaseModel):
     id: str
     reference_id: str
@@ -113,6 +119,12 @@ class RFQDetailResponse(BaseModel):
     current_lowest_bid: Optional[float] = None
     my_rank: Optional[str] = None
     my_latest_bid: Optional[float] = None
+
+    @field_serializer("pickup_at", "bid_start_at", "initial_close_at", "current_close_at", "forced_close_at", "created_at", when_used="json")
+    def serialize_utc_dt(self, dt: datetime, _info):
+        if dt.tzinfo is None:
+            return dt.replace(tzinfo=timezone.utc).isoformat()
+        return dt.isoformat()
 
     class Config:
         from_attributes = True

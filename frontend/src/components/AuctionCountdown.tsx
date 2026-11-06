@@ -9,6 +9,20 @@ interface AuctionCountdownProps {
   triggerWindowMinutes?: number;
 }
 
+// Safely parse date strings from backend as UTC
+export function parseAsUTC(dateStr: string): number {
+  if (!dateStr) return 0;
+  const hasTimezone = dateStr.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(dateStr);
+  const normalized = hasTimezone ? dateStr : `${dateStr}Z`;
+  return new Date(normalized).getTime();
+}
+
+export function formatTimeLocal(dateStr: string): string {
+  if (!dateStr) return '--:--';
+  const timestamp = parseAsUTC(dateStr);
+  return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
 export const AuctionCountdown: React.FC<AuctionCountdownProps> = ({
   currentCloseAt,
   forcedCloseAt,
@@ -21,8 +35,8 @@ export const AuctionCountdown: React.FC<AuctionCountdownProps> = ({
   useEffect(() => {
     const update = () => {
       const now = Date.now();
-      const closeTime = new Date(currentCloseAt).getTime();
-      const forcedTime = new Date(forcedCloseAt).getTime();
+      const closeTime = parseAsUTC(currentCloseAt);
+      const forcedTime = parseAsUTC(forcedCloseAt);
 
       setTimeLeftMs(Math.max(0, closeTime - now));
       setForcedTimeLeftMs(Math.max(0, forcedTime - now));
@@ -90,8 +104,8 @@ export const AuctionCountdown: React.FC<AuctionCountdownProps> = ({
           </div>
           <div className="text-xs text-slate-500 mt-2 flex items-center justify-between">
             <span>Closes at:</span>
-            <span className="font-medium text-slate-700">
-              {new Date(currentCloseAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            <span className="font-medium text-slate-700 font-mono">
+              {formatTimeLocal(currentCloseAt)}
             </span>
           </div>
         </div>
@@ -107,8 +121,8 @@ export const AuctionCountdown: React.FC<AuctionCountdownProps> = ({
           </div>
           <div className="text-xs text-slate-500 mt-2 flex items-center justify-between">
             <span>Hard Deadline:</span>
-            <span className="font-medium text-slate-700">
-              {new Date(forcedCloseAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            <span className="font-medium text-slate-700 font-mono">
+              {formatTimeLocal(forcedCloseAt)}
             </span>
           </div>
         </div>
@@ -125,4 +139,3 @@ export const AuctionCountdown: React.FC<AuctionCountdownProps> = ({
     </div>
   );
 };
-

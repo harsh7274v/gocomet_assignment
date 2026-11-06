@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { api } from '../services/api';
 import { RFQDetail, LeaderboardResponse, ActivityLog } from '../types';
-import { AuctionCountdown } from '../components/AuctionCountdown';
+import { AuctionCountdown, formatTimeLocal } from '../components/AuctionCountdown';
 import { LeaderboardTable } from '../components/LeaderboardTable';
 import { ActivityLogList } from '../components/ActivityLogList';
 import { ExtensionBanner } from '../components/ExtensionBanner';
@@ -361,7 +361,7 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
                 <span>
                   <strong>Forced Close Rule:</strong> All extensions are strictly capped at{' '}
                   <span className="font-mono font-bold">
-                    {new Date(rfq.forced_close_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {formatTimeLocal(rfq.forced_close_at)}
                   </span>.
                 </span>
               </div>

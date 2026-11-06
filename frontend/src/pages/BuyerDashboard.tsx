@@ -15,6 +15,7 @@ import {
 import { api } from '../services/api';
 import { RFQListItem, RFQStatus } from '../types';
 import { CreateRFQModal } from './CreateRFQModal';
+import { formatTimeLocal } from '../components/AuctionCountdown';
 
 interface BuyerDashboardProps {
   onSelectRFQ: (rfqId: string) => void;
@@ -243,10 +244,10 @@ export const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ onSelectRFQ }) =
                       )}
                     </td>
                     <td className="px-5 py-4 text-xs font-mono text-slate-700">
-                      {new Date(rfq.current_close_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                      {formatTimeLocal(rfq.current_close_at)}
                     </td>
                     <td className="px-5 py-4 text-xs font-mono text-rose-700 font-semibold">
-                      {new Date(rfq.forced_close_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                      {formatTimeLocal(rfq.forced_close_at)}
                     </td>
                     <td className="px-5 py-4">
                       {getStatusBadge(rfq.status)}
