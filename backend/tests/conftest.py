@@ -80,6 +80,7 @@ def setup_test_database():
         initial_close_at=now + timedelta(minutes=8),
         current_close_at=now + timedelta(minutes=8),
         forced_close_at=now + timedelta(minutes=30),
+        target_budget=60000.0,
         status=RFQStatus.ACTIVE
     )
     db.add(rfq1)

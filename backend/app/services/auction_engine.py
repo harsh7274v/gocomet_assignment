@@ -131,7 +131,14 @@ class AuctionEngine:
                 detail="Total bid amount must be greater than zero."
             )
 
-        # Note: Suppliers can submit competitive quotes lower than, equal to, or higher than current market L1.
+        # Budget Ceiling Validation: Supplier quote cannot exceed buyer's set budget
+        if rfq.target_budget is not None and total_amount > rfq.target_budget:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Budget ceiling exceeded: Your quotation (₹{total_amount:,.2f}) exceeds the buyer's maximum budget of ₹{rfq.target_budget:,.2f}."
+            )
+
+        # Note: Suppliers can submit competitive quotes lower than, equal to, or higher than current market L1 (within budget).
         # Real-time ranking calculation assigns their relative standing (L1, L2, L3...) accordingly.
 
         # Fetch supplier profile

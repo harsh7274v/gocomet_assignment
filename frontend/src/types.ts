@@ -46,6 +46,7 @@ export interface RFQListItem {
   pickup_location: string;
   destination: string;
   pickup_at: string;
+  target_budget?: number;
   bid_start_at: string;
   current_close_at: string;
   forced_close_at: string;
@@ -67,6 +68,7 @@ export interface RFQDetail {
   pickup_location: string;
   destination: string;
   pickup_at: string;
+  target_budget?: number;
   bid_start_at: string;
   initial_close_at: string;
   current_close_at: string;

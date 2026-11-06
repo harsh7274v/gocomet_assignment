@@ -109,6 +109,31 @@ def test_higher_bid_allowed_with_rank_assignment():
     assert higher_bid.status_code == 200
     assert higher_bid.json()["total_amount"] == 55000.0
 
+def test_budget_ceiling_rejection():
+    # Login as DHL
+    login_res = client.post("/api/auth/login", json={
+        "email": "dhl@supplier.com",
+        "password": "password123"
+    })
+    token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Get active RFQ
+    rfqs = client.get("/api/rfqs", headers=headers).json()
+    active_rfq = next(r for r in rfqs if r["status"] == "ACTIVE")
+    rfq_id = active_rfq["id"]
+
+    # DHL tries to submit a bid of ₹70,000 (exceeding budget of ₹60,000)
+    bad_bid = client.post(f"/api/rfqs/{rfq_id}/bids", headers=headers, json={
+        "freight_charges": 65000.0,
+        "origin_charges": 2000.0,
+        "destination_charges": 3000.0,
+        "transit_days": 3,
+        "validity_days": 15
+    })
+    assert bad_bid.status_code == 400
+    assert "Budget ceiling exceeded" in bad_bid.json()["detail"]
+
 def test_cancel_rfq():
     # Login as Buyer
     login_res = client.post("/api/auth/login", json={

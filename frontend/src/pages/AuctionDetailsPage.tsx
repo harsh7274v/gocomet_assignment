@@ -14,7 +14,8 @@ import {
   Sparkles,
   Zap,
   FastForward,
-  Play
+  Play,
+  IndianRupee
 } from 'lucide-react';
 import { api } from '../services/api';
 import { RFQDetail, LeaderboardResponse, ActivityLog } from '../types';
@@ -283,7 +284,7 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
       </div>
 
       {/* Shipment & Route Overview Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="flex items-start space-x-3">
           <div className="p-2.5 rounded-xl bg-brand-50 text-brand-600 mt-0.5">
             <MapPin className="w-5 h-5" />
@@ -304,6 +305,25 @@ export const AuctionDetailsPage: React.FC<AuctionDetailsPageProps> = ({ rfqId, o
             <div className="text-xs font-semibold text-slate-400 uppercase">Pickup Date</div>
             <div className="text-sm font-bold text-slate-900">
               {new Date(rfq.pickup_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-start space-x-3">
+          <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 mt-0.5">
+            <IndianRupee className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-slate-400 uppercase">Target Budget Ceiling</div>
+            <div className="text-base font-mono font-extrabold text-slate-900">
+              {rfq.target_budget ? (
+                `₹${rfq.target_budget.toLocaleString('en-IN', { minimumFractionDigits: 0 })}`
+              ) : (
+                'No Ceiling'
+              )}
+            </div>
+            <div className="text-[11px] text-slate-500">
+              {rfq.target_budget ? 'Max acceptable bid limit' : 'Open target budget'}
             </div>
           </div>
         </div>

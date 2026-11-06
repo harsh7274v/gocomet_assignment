@@ -273,6 +273,7 @@ export const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ onSelectRFQ }) =
               <tr>
                 <th className="px-5 py-3.5">RFQ / Reference ID</th>
                 <th className="px-5 py-3.5">Route</th>
+                <th className="px-5 py-3.5">Target Budget</th>
                 <th className="px-5 py-3.5">Lowest Bid (L1)</th>
                 <th className="px-5 py-3.5">Close Deadline</th>
                 <th className="px-5 py-3.5">Forced Close</th>
@@ -283,7 +284,7 @@ export const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ onSelectRFQ }) =
             <tbody className="divide-y divide-slate-100">
               {filteredRfqs.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center text-slate-500 text-xs">
+                  <td colSpan={8} className="px-5 py-12 text-center text-slate-500 text-xs">
                     No RFQs match your filter criteria.
                   </td>
                 </tr>
@@ -301,6 +302,18 @@ export const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ onSelectRFQ }) =
                         <span className="font-semibold">{rfq.destination}</span>
                       </div>
                       <div className="text-[11px] text-slate-500 mt-0.5">{rfq.service_type}</div>
+                    </td>
+                    <td className="px-5 py-4">
+                      {rfq.target_budget ? (
+                        <div>
+                          <div className="font-mono font-bold text-sm text-slate-900">
+                            ₹{rfq.target_budget.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+                          </div>
+                          <div className="text-[10px] text-slate-400">Hard Ceiling</div>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-slate-400 italic">No budget cap</span>
+                      )}
                     </td>
                     <td className="px-5 py-4">
                       {rfq.current_lowest_bid ? (

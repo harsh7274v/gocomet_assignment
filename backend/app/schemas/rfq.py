@@ -41,6 +41,7 @@ class RFQCreateRequest(BaseModel):
     pickup_location: str = Field(min_length=2, max_length=255)
     destination: str = Field(min_length=2, max_length=255)
     pickup_at: datetime
+    target_budget: Optional[float] = None
 
     bid_start_at: datetime
     initial_close_at: datetime
@@ -82,10 +83,12 @@ class RFQListItemResponse(BaseModel):
     pickup_location: str
     destination: str
     pickup_at: datetime
+    target_budget: Optional[float] = None
     bid_start_at: datetime
     current_close_at: datetime
     forced_close_at: datetime
     status: RFQStatus
+    target_budget: Optional[float] = None
     current_lowest_bid: Optional[float] = None
     total_bids_count: int = 0
     total_suppliers_count: int = 0
@@ -108,6 +111,7 @@ class RFQDetailResponse(BaseModel):
     pickup_location: str
     destination: str
     pickup_at: datetime
+    target_budget: Optional[float] = None
     bid_start_at: datetime
     initial_close_at: datetime
     current_close_at: datetime

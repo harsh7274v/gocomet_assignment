@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 import enum
-from sqlalchemy import Column, String, DateTime, ForeignKey, Enum, Text
+from sqlalchemy import Column, String, DateTime, ForeignKey, Enum, Text, Float
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -26,6 +26,7 @@ class RFQ(Base):
     pickup_location = Column(String(255), nullable=False)
     destination = Column(String(255), nullable=False)
     pickup_at = Column(DateTime, nullable=False)
+    target_budget = Column(Float, nullable=True)
 
     # Auction Timing Milestones (UTC)
     bid_start_at = Column(DateTime, nullable=False)

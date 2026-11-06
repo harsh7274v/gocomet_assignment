@@ -12,7 +12,8 @@ import {
   Wifi,
   WifiOff,
   RefreshCw,
-  Info
+  Info,
+  IndianRupee
 } from 'lucide-react';
 import { api } from '../services/api';
 import { RFQDetail, LeaderboardResponse, ActivityLog, Bid } from '../types';
@@ -120,6 +121,7 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
   const isLowerThanLowest = currentLowestOfAll === null || calculatedTotal < currentLowestOfAll;
   const isEqualLowest = currentLowestOfAll !== null && calculatedTotal === currentLowestOfAll;
   const isHigherThanLowest = currentLowestOfAll !== null && calculatedTotal > currentLowestOfAll;
+  const isExceedingBudget = rfq?.target_budget !== undefined && rfq?.target_budget !== null && calculatedTotal > rfq.target_budget;
 
   const handleBidSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,6 +130,11 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
 
     if (calculatedTotal <= 0) {
       setErrorMessage('Total quotation must be greater than zero.');
+      return;
+    }
+
+    if (isExceedingBudget) {
+      setErrorMessage(`Budget Ceiling Violation: Your quotation (₹${calculatedTotal.toLocaleString()}) exceeds the buyer's maximum target budget of ₹${rfq.target_budget?.toLocaleString()}.`);
       return;
     }
 
@@ -212,7 +219,7 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
       </div>
 
       {/* Carrier Rank & Market Cockpit Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Your Current Rank Card */}
         <div className={`p-5 rounded-2xl border transition ${
           isL1
@@ -285,6 +292,29 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
               {currentLowestOfAll !== null
                 ? `₹${currentLowestOfAll.toLocaleString()} (Leader)`
                 : 'No bids yet (Open lead)'}
+            </span>
+          </div>
+        </div>
+
+        {/* Target Budget Ceiling */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="text-xs font-semibold text-slate-400 uppercase flex items-center justify-between">
+              <span>Buyer Budget Ceiling</span>
+              <IndianRupee className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="text-3xl font-mono font-extrabold text-slate-900 mt-2">
+              {rfq?.target_budget ? (
+                `₹${rfq.target_budget.toLocaleString('en-IN', { minimumFractionDigits: 0 })}`
+              ) : (
+                'No Limit'
+              )}
+            </div>
+          </div>
+          <div className="text-xs text-slate-500 mt-2 flex items-center justify-between border-t border-slate-100 pt-2">
+            <span>Hard Cap:</span>
+            <span className={`text-[11px] font-semibold ${rfq?.target_budget ? 'text-rose-600' : 'text-slate-600'}`}>
+              {rfq?.target_budget ? 'Bids above cap blocked' : 'Open target budget'}
             </span>
           </div>
         </div>
@@ -425,22 +455,30 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
                 ₹{calculatedTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </div>
 
+              {/* Target Budget Ceiling Exceeded Warning */}
+              {isExceedingBudget && (
+                <div className="text-[11px] text-rose-800 font-bold flex items-center mt-1.5 bg-rose-50 px-2.5 py-1.5 rounded-lg border border-rose-300">
+                  <ShieldAlert className="w-3.5 h-3.5 mr-1.5 text-rose-600 flex-shrink-0" />
+                  <span>Budget Limit Exceeded: Your quote of ₹{calculatedTotal.toLocaleString()} exceeds the buyer's maximum ceiling budget of ₹{rfq?.target_budget?.toLocaleString()}. You must lower your quote to submit.</span>
+                </div>
+              )}
+
               {/* Dynamic Win-Probability & Bidding Guidance */}
-              {currentLowestOfAll !== null && isLowerThanLowest && (
+              {!isExceedingBudget && currentLowestOfAll !== null && isLowerThanLowest && (
                 <div className="text-[11px] text-emerald-800 font-semibold flex items-center mt-1.5 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200">
                   <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-emerald-600 flex-shrink-0" />
                   <span>Strong Win Chance (L1): This quote beats the current lowest bid by ₹{(currentLowestOfAll - calculatedTotal).toLocaleString()}! You will capture the #1 leader rank.</span>
                 </div>
               )}
 
-              {currentLowestOfAll !== null && isEqualLowest && (
+              {!isExceedingBudget && currentLowestOfAll !== null && isEqualLowest && (
                 <div className="text-[11px] text-amber-800 font-semibold flex items-center mt-1.5 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200">
                   <AlertTriangle className="w-3.5 h-3.5 mr-1.5 text-amber-600 flex-shrink-0" />
                   <span>Tied with Leader: Your quote matches the lowest price (₹{currentLowestOfAll.toLocaleString()}). Tie-breaks favor earlier submissions. Reduce slightly to take the lead.</span>
                 </div>
               )}
 
-              {currentLowestOfAll !== null && isHigherThanLowest && (
+              {!isExceedingBudget && currentLowestOfAll !== null && isHigherThanLowest && (
                 <div className="text-[11px] text-orange-800 font-semibold flex items-center mt-1.5 bg-orange-50 px-2.5 py-1.5 rounded-lg border border-orange-200">
                   <AlertTriangle className="w-3.5 h-3.5 mr-1.5 text-orange-600 flex-shrink-0" />
                   <span>Low Winning Chances Guide: Your quote is ₹{(calculatedTotal - currentLowestOfAll).toLocaleString()} higher than the lowest market bid (₹{currentLowestOfAll.toLocaleString()}). In reverse British Auctions, buyers favor lower rates. You can still submit this quote, but lowering your price increases your win probability.</span>
@@ -450,9 +488,11 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
 
             <button
               type="submit"
-              disabled={isSubmitting || calculatedTotal <= 0 || isAuctionClosed}
+              disabled={isSubmitting || calculatedTotal <= 0 || isAuctionClosed || isExceedingBudget}
               className={`inline-flex items-center justify-center space-x-2 px-6 py-3 rounded-xl text-xs font-bold transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${
-                isLowerThanLowest 
+                isExceedingBudget
+                  ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                  : isLowerThanLowest 
                   ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
                   : isHigherThanLowest 
                   ? 'bg-orange-600 hover:bg-orange-700 text-white' 
@@ -463,6 +503,8 @@ export const SupplierBiddingPage: React.FC<SupplierBiddingPageProps> = ({ rfqId,
               <span>
                 {isAuctionClosed
                   ? 'Auction Closed'
+                  : isExceedingBudget
+                  ? 'Exceeds Budget Limit'
                   : isSubmitting
                   ? 'Transmitting Bid...'
                   : myBids.length === 0
