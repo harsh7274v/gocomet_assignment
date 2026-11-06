@@ -24,12 +24,14 @@ All formal technical and product specifications are located in the [`docs/`](./d
   - **Option A (`bid_received`):** Any qualifying bid received in the last $X$ minutes extends the auction by $Y$ minutes.
   - **Option B (`any_rank_change`):** Any supplier rank shift ($L_i \leftrightarrow L_j$) in the last $X$ minutes extends the auction.
   - **Option C (`l1_change`):** Only an overtake of the prevailing lowest bidder ($L1$) in the last $X$ minutes extends the auction.
+- **Target Budget Dragging Bar & Ceiling Enforcement:** Buyers can set a maximum budget with an interactive dragging range slider. Any supplier bid exceeding this budget ceiling is rejected immediately on both the client (Zod) and server (FastAPI).
+- **Zod Schema & Authentication Validation:** Full client-side runtime validation using Zod for credentials, RFQ timings cross-refinements (`forced_close_at > initial_close_at > bid_start_at`), and multi-component bid inputs.
+- **Dynamic Win-Probability & Bidding Guidance:** Suppliers can bid flexibly (lower, equal, or higher than the current market leader) with dynamic win-chance indicators and guidance banners.
 - **Forced Close Hard Ceiling:**
   $$T_{close}' = \min(T_{close} + Y \text{ minutes}, T_{forced})$$
   Under no circumstance can any extension exceed the non-negotiable operational deadline.
-- **Downside Bidding Validation:** Suppliers can only submit counter-bids strictly lower than their own prior valid quote ($\text{Bid}_{new} < \text{Bid}_{prev}$).
-- **Charge Breakdown Integrity:** Total quote is strictly computed on the server ($\text{Freight} + \text{Origin} + \text{Destination}$).
-- **Real-Time Live Cockpit:** WebSockets stream live bids, leaderboard shifts, and animated extension alerts with detailed trigger reasons.
+- **Real-Time Live Cockpit & WebSockets:** Live bids, leaderboard rank changes, and animated extension alerts stream via native WebSockets.
+- **Auction Lifecycle Control:** Active auctions can be cancelled with immediate supplier notification and instant timer freezing.
 - **1-Click Multi-Account Demo Switcher:** Seamlessly switch between Enterprise Buyer and 4 competing carriers (Blue Dart, DHL, FedEx, Delhivery) across tabs.
 
 ---
@@ -77,14 +79,19 @@ source backend/venv/bin/activate
 PYTHONPATH=backend pytest backend/tests/ -v
 ```
 
-### Verified Test Cases:
-1. `test_trigger_a_bid_received_inside_window`: Inside window extends by $Y$ minutes.
-2. `test_trigger_a_bid_received_outside_window`: Outside window does not extend.
-3. `test_trigger_b_any_rank_change`: Extends on rank swap; rejects extension if rank unchanged.
-4. `test_trigger_c_l1_rank_change`: Extends when $L1$ changes; does not extend when only $L2/L3$ shift.
-5. `test_forced_close_ceiling_clamping`: Enforces $T_{close} = T_{forced}$ when $T_{close} + Y > T_{forced}$.
-6. `test_downside_bidding_rule_rejection`: Rejects higher or equal re-bids with HTTP 400.
-7. `test_list_rfqs_and_bid`: End-to-end API lifecycle test with live bid submission and audit log verification.
+### Verified Test Cases (12/12 Passing):
+1. `test_health`: API health check.
+2. `test_login_buyer`: Buyer authentication with JWT issuance.
+3. `test_login_supplier`: Supplier authentication and carrier profile resolution.
+4. `test_list_rfqs_and_bid`: End-to-end API lifecycle test with live bid submission and audit log verification.
+5. `test_higher_bid_allowed_with_rank_assignment`: Carrier can place bid higher than current lowest with correct rank assignment.
+6. `test_budget_ceiling_rejection`: Rejection of bids exceeding buyer's target budget ceiling with HTTP 400.
+7. `test_cancel_rfq`: Immediate RFQ cancellation and status transition.
+8. `test_trigger_a_bid_received_inside_window`: Inside window extends by $Y$ minutes.
+9. `test_trigger_a_bid_received_outside_window`: Outside window does not extend.
+10. `test_trigger_b_any_rank_change`: Extends on rank swap; rejects extension if rank unchanged.
+11. `test_trigger_c_l1_rank_change`: Extends when $L1$ changes; does not extend when only $L2/L3$ shift.
+12. `test_forced_close_ceiling_clamping`: Enforces $T_{close} = T_{forced}$ when $T_{close} + Y > T_{forced}$.
 
 ---
 
